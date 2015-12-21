@@ -8,25 +8,12 @@
 
 include 'configPaulo.php';
 
-function get_json($date) {
-  $file_day = "../OK/".$date."/config.txt";
-  if (file_exists($file_day))
-    return json_decode(file_get_contents($file_day));
-  else
-    return null;
-}
 
-function get_program_at($y, $m, $d, $hour) {
 
-  $jsonObject = json_decode(file_get_contents("http://" . $_SERVER['HTTP_HOST'] . "/ws/index.php?req=onair&y={$y}&m={$m}&d={$d}&h={$hour}"));
-
-  if($jsonObject->type == "emission") {
-    return array($jsonObject->titre, $jsonObject->podcastable);
-  }
-  else {
-    return array();
-  }
-  
+function get_time(&$time) {
+  $time = $_GET['time'];
+  if (!ctype_digit($time) || ($time < 0) || ($time > 24))
+    $time = "";
 }
 
 function get_current_date(&$date, &$day, &$month, &$year) {
@@ -36,15 +23,6 @@ function get_current_date(&$date, &$day, &$month, &$year) {
   $year = date("Y");
 }
 
-function get_details_from_date($date, &$day, &$month, &$year) {
-  $pattern = '/^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])/';
-  preg_match($pattern, $date, $matches);
-  if (checkdate ($matches[2], $matches[3], $matches[1])) {
-    $day = $matches[3];
-    $month = $matches[2];
-    $year = $matches[1];
-  }
-}
 function get_date(&$date, &$day, &$month, &$year) {
   $date = $_GET['date'];
   $pattern = '/^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])/';
@@ -60,49 +38,8 @@ function get_date(&$date, &$day, &$month, &$year) {
   else {
     get_current_date($date, $day, $month, $year);
   }
-
 }
 
-function get_time(&$time) {
-  $time = $_GET['time'];
-  if (!ctype_digit($time) || ($time < 0) || ($time > 24))
-    $time = "";
-}
-
-function load_ecoutes($date) {
-  $result = array();
-  
-  for($i = 0; $i < 24; ++$i) {
-    $result[$i][0] = "0";
-    $result[$i][1] = "0";
-    }
-
-  $datetime = $date . " 00:00:00";
-
-	$options = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
-
-	try {
-	$bdd = new PDO('mysql:host='._PAULODB_SERVEUR.';dbname='._PAULODB_BD, _PAULODB_LOGIN, _PAULODB_MDP, $options);
-
-  $sql = "Select timeslot, download, count(*) as nb From log_ecoute where (timeslot >= ".$bdd->quote($datetime)." and timeslot <= DATE_ADD(".$bdd->quote($datetime).", INTERVAL 24 HOUR)) group by timeslot, download;";
-	
-  $prep = $bdd->query($sql);
-	
-  $prep->execute();
-  for($i=0; $row = $prep->fetch(); $i++){
-    $elems = explode(" ", $row["timeslot"]);
-    $elems2 = explode(":", $elems[1]);
-    $h = intval($elems2[0]);
-    $download = intval($row["download"]);
-    $result[$h][$download] = $row["nb"];
-  }
-	}
-	catch (PDOException $Exception ) {
-	}
-
-
-  return $result;
-}
 
 
 class Podcast {
@@ -118,37 +55,16 @@ class Podcast {
   var $url;
   var $podcastable;
   var $image;
+  var $ecoutes;
 
 
-  function __construct() {
-    $a = func_get_args(); 
-        $i = func_num_args(); 
-        if (method_exists($this,$f='__construct'.$i)) { 
-            call_user_func_array(array($this,$f),$a); 
-        } 
-  }
-
-  function __construct3($time, $entries, $duration) {
-    $this->time = $time;
-    $this->ok = false;
-    $this->paulo_entries = $entries;
-    $this->duration = $duration;
-    $this->future = false;
-    $this->url = "";
-    $this->podcastable = false;
-    $this->image = "";
-  }
-
-  function __construct2($jsonEntry, $date = "") {
-    $this->mp3 = ltrim($jsonEntry->mp3);
-    $this->future = $this->mp3 == "future";
-    if ($this->future)
-      $this->mp3 = "";
-    $this->time = intval($jsonEntry->time);
-    $titles = explode('|', $jsonEntry->title);
-    $this->title = $jsonEntry->title;
-    if (count($titles) == 1) {
-      $this->titleItems = $jsonEntry->title;
+  function __construct($array_from_ws) {
+     $this->mp3 = $array_from_ws->mp3;
+     $this->time = $array_from_ws->time;
+     $this->title = $array_from_ws->title;
+     $titles = explode('|', $this->title);
+     if (count($titles) == 1) {
+      $this->titleItems = $this->title;
     }
     else {
       $this->titleItems = "<ul>";
@@ -157,25 +73,22 @@ class Podcast {
       }
       $this->titleItems = $this->titleItems . "</ul>";
     }
-    $this->ok = true;
-    $this->duration = 1;
-    $this->url = ltrim($jsonEntry->url);
-    $this->podcastable = $jsonEntry->podcastable;
-    
-    if ($date != "") {
-      get_details_from_date($date, $day, $month, $year);
-      $jsonObject = json_decode(file_get_contents("http://" .$_SERVER['HTTP_HOST']. "/ws/?req=image&t=" . urlencode($this->title) . "&h=" . $this->time . "&y=" . $year . "&m=" . $month . "&d=" . $day));
-      $this->image = $jsonObject[0]->uri;
-    }
-    else 
-      $this->image = "";
+    $this->ok = $array_from_ws->ok;
+    $this->paulo_entries = $array_from_ws->paulo_entries;
+    $this->duration = $array_from_ws->duration;
+    $this->shortTitle = $array_from_ws->shortTitle;
+    $this->future = $array_from_ws->future;
+    $this->url = $array_from_ws->url;
+    $this->podcastable = $array_from_ws->podcastable;
+    $this->image = $array_from_ws->image;
+    $this->ecoutes = $array_from_ws->ecoutes;
   }
 
   static function emptyToItem($hour) {
       echo "<p class=\"time_empty\">".$hour."h</p>";
   }
 
-  function toItem($date, $ecoutes) {
+  function toItem($date) {
     if ($this->ok) {
       if (strlen($this->mp3) != 0) {
 	echo '<p class="time_elem';
@@ -206,10 +119,9 @@ class Podcast {
       echo '';
       echo "<div id='title".$this->time."' class=\"time_popup\">".$this->titleItems;
 
-      $h = intval($this->time);
-      if (isset($ecoutes[$h]) && strlen($this->mp3) != 0) {
+      if (isset($this->ecoutes) && strlen($this->mp3) != 0) {
 	$add = false;
-	$nb = $ecoutes[$h][0] + $ecoutes[$h][1];
+	$nb = $this->ecoutes[0] + $this->ecoutes[1];
 	if ($nb != 0) {
 	  echo "<br /><span style=\"font-size: 70%; text-align:right\">".$nb . " écoute";
 	  $add = true;
@@ -262,7 +174,7 @@ class Podcast {
     echo "<ul>";
     $id = 0;
     foreach($this->paulo_entries as $entry) {
-      echo "<li id=\"entry-".$this->time."-".$id."\" title=\"".$entry["time"].": ".$entry["title"].", ".$entry["author"]."\"><span>".$entry["time"]. "</span><em>" .$entry["title"] ."</em>, ".$entry["author"]."</li>";
+      echo "<li id=\"entry-".$this->time."-".$id."\" title=\"".$entry->time.": ".$entry->title.", ".$entry->author."\"><span>".$entry->time. "</span><em>" .$entry->title ."</em>, ".$entry->author."</li>";
       $id = $id + 1;
     }
     echo "</ul>";
@@ -290,30 +202,32 @@ class Podcast {
 
 }
 
-function load_podcasts($jsonDay, $date, $time) {
-  $result = array();
-  if ($jsonDay->track)
-    foreach($jsonDay->track as $track) {
-	$result[intval($track->time)] = new Podcast($track, $time == $track->time ? $date : "");
-    }
-  return $result;
-}
-
-	$options = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
-
-	try {
-		$bdd = new PDO('mysql:host='._PAULODB_SERVEUR.';dbname='._PAULODB_BD, _PAULODB_LOGIN, _PAULODB_MDP, $options);
+	function load_podcasts_from_ws($date) {
+	  $podcasts = json_decode(file_get_contents("http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/?date=" . $date));
+	  // conversion to object
+	  $result = array();
+          foreach($podcasts as &$podcast) {
+            $result[$podcast->time] = new Podcast($podcast);
+          }
+          return $result;
 	}
-	catch (PDOException $Exception ) {
-	$bdd = null;
-	//exit("Des problèmes techniques nous empêchent temporairement de vous proposer les podcasts... Veuillez nous excuser pour la gêne occasionnée.");
+	
+	function get_ecoutes_from_podcasts($podcasts) {
+            $result = array();
+            // build an array (one value per hour) corresponding to the ecoutes
+            for($i = 0; $i != 24; ++$i) {
+                if (isset($podcasts[$i]) && isset($podcasts[$i]->ecoutes)) {
+                    $result[$i] = $podcasts[$i]->ecoutes;
+                }
+                else {
+                    $result[$i] = array(0, 0);
+                }
+                
+            }
+            
+            return $result;
 	}
 
-        include("lib/paulo_entries.php");
-
-
-	$url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-	$prefix_url = parse_url($url, PHP_URL_PATH);
 
 	setlocale (LC_TIME, 'fr_FR.utf8','fra'); 
 	date_default_timezone_set('Europe/Paris');
@@ -325,80 +239,7 @@ function load_podcasts($jsonDay, $date, $time) {
 	$datnext = date ("Y-m-d", mktime (0,0,0,$datex[1],$datex[2]+1,$datex[0]));
 
 
-	$jsonDay = get_json($date);
-
-	$ecoutes = load_ecoutes($date);
-	
-	$podcasts = load_podcasts($jsonDay, $date, $time);
-
-	$first = -1;
-	$second = -1;
-	for($i = 0; $i != 8; $i++)
-	  if (isset($podcasts[$i])) {
-            if ($first == -1)
-                $first = $i;
-            else if ($second == -1) {
-                $second = -1;
-                break;
-            } 
-	  }
-        if ($first == -1)
-            $first = 7;
-        if ($second == -1)
-            $second = 7;
-        
-
-	if ($first != 0) {
-	  $entries = get_paulo_entries($date, 0, $bdd, ".", $first);
-	  $podcasts[0] = new Podcast(0, $entries, $first);
-	  if ($first != 1)
-	    $podcasts[0]->shortTitle = "la nuit";
-	}
-	if ($first == 0 && $second > 0) {
-	  $entries = get_paulo_entries($date, $first + 1, $bdd, ".", $second);
-	  $podcasts[$first + 1] = new Podcast($first + 1, $entries, $second-1);
-	  if ($second != 1)
-	    $podcasts[$first + 1]->shortTitle = "la nuit";
-	 }
-	 
-	// ajout des créneaux de podcast pas encore récupérés, mais qui vont arriver
-	$heureCourante = intval(date("G"));
-	$firstH = $heureCourante - 2;
-	if ($firstH < 0)
-	  $firstH = 0;
-	for($i = $firstH; $i != $heureCourante + 1; $i++) {
-	  if (!isset($podcasts[$i])) {
-	    $program = get_program_at($year, $month, $day, $i);
-	    if (count($program) != 0) {
-	      $elem->mp3 = "future";
-	      $elem->time = $i;
-	      $elem->title = $program[0];
-	      $elem->podcastable = $program[1];
-	      $podcasts[$i] = new Podcast($elem, $date);
-	    }
-	  }
-	}
-
-	for($i = $second; $i != 24; $i++)
-	  if (!isset($podcasts[$i])) {
-	    $entries = get_paulo_entries($date, $i, $bdd, ".");
-	    if ($entries && count($entries) > 0) {
-	      $podcasts[$i] = new Podcast($i, $entries, 1);
-	    }
-	  }
-
-	$actionSearch = $_GET["search"];
-	$actionLive = $_GET["live"];
-	
-	$actionRecent = $_GET["recent"];
-	if (isset($actionRecent) && $time == "") {
-	  $time = intval(date("H"));
-	  if (!isset($podcasts[$time]) || $podcasts[$time]->ok) {
-	    $time = "";
-	    $actionLive = true;
-	    unset($actionRecent);
-	    }
-	}
+	$podcasts = load_podcasts_from_ws($date);
 	
 	$fulldate = strftime("%A %e %B %Y",strtotime($date));
 ?>
@@ -412,6 +253,10 @@ else
 <meta property="og:locale" content="fr_FR" />
 <meta property="og:type" content="article" />
 <?php if (!isset($time) || $time == "") { ?>
+<meta property="og:title" content="Radio Campus <?php echo $fulldate;?>" />
+<meta property="og:site_name" content="Le podcast de Radio Campus Clermont-Ferrand" />
+<?php }
+else if (isset($time) && $time != "") { ?>
 <meta property="og:title" content="<?php echo htmlspecialchars ($podcasts[$time]->title) . " - Radio Campus, ".$fulldate . ", ".$time."h";?>" />
 <meta property="og:description" content="Podcast de l'émission <?php echo htmlspecialchars ($podcasts[$time]->title) . " du ".$fulldate . " ".$time."h sur Radio Campus Clermont-Ferrand";?>" />
 <meta property="og:site_name" content="Le podcast de Radio Campus Clermont-Ferrand" />
@@ -490,7 +335,7 @@ $(document).ready(function(){
 	      if ($podcasts[$i]->paulo_entries) {
 		  echo "window.time_entries[".$podcasts[$i]->time."] = [];\n";
 	      foreach($podcasts[$i]->paulo_entries as $entry) {
-		echo "window.time_entries[".$podcasts[$i]->time."][".$j."] = '".$entry["time"]."';\n";
+		echo "window.time_entries[".$podcasts[$i]->time."][".$j."] = '".$entry->time."';\n";
 		$j = $j + 1;
 	      }
 	    }
@@ -855,7 +700,7 @@ function remove_image() {
 }
 
 function display_downloads(var_time) {
-  var ecoutes = <?php echo json_encode($ecoutes); ?>;
+  var ecoutes = <?php echo json_encode(get_ecoutes_from_podcasts($podcasts)); ?>;
   
   if (ecoutes[var_time] === undefined) {
     return "";
@@ -1590,7 +1435,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 					if ($podcasts[$i]->duration > 1)
 					  echo " class=\"large\"";
 					echo ">";
-					$podcasts[$i]->toItem($date, $ecoutes);
+					$podcasts[$i]->toItem($date);
 					$first = true;
 					$notempty = $podcasts[$i]->duration - 1;
 					echo "</li>\n";

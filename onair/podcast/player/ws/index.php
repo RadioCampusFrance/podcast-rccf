@@ -107,7 +107,6 @@ class Podcast {
   var $mp3;
   var $time;
   var $title;
-  var $titleItems;
   var $ok;
   var $paulo_entries;
   var $duration;
@@ -144,7 +143,7 @@ class Podcast {
     if ($this->future)
       $this->mp3 = "";
     $this->time = intval($jsonEntry->time);
-    $titles = explode('|', $jsonEntry->title);
+    
     $this->title = $jsonEntry->title;
     $this->ok = true;
     $this->duration = 1;
@@ -200,8 +199,6 @@ function load_podcasts($jsonDay, $date, $time) {
 	get_time($time);
 
 	$datex = explode('-',$date);
-	$datprev = date ("Y-m-d", mktime (0,0,0,$datex[1],$datex[2]-1,$datex[0]));
-	$datnext = date ("Y-m-d", mktime (0,0,0,$datex[1],$datex[2]+1,$datex[0]));
 
 
 	$jsonDay = get_json($date);
