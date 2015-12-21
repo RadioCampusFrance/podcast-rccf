@@ -1,0 +1,52 @@
+body {
+    font-size: 12px;
+}
+
+#left {
+  float: left;
+  width: 250px;
+  text-align: center;
+  margin: 10px;
+}
+#datapicker, #campus_player {
+  margin: 10px auto;
+}
+
+#right {
+  float: left;
+  margin: 10px;
+}
+
+.heure {
+  width: 90px;
+  line-height: 30px;
+  padding-right: 2px;
+}
+.download {
+  clear: both;
+  width: 40px;
+  text-align: center;
+}
+
+.colonne {
+  float: left;
+  margin-right: 2px;
+  margin-top: 1px;
+  height: 30px;
+}
+.second {
+  width: 180px;
+  text-align: center;
+}
+
+.third {
+  width: 340px;
+}
+.last {
+  width: 180px;
+}
+
+#time {
+  text-align: center;
+  height: 15px;
+}

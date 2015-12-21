@@ -1,0 +1,66 @@
+
+
+.array {
+    display: block;
+    padding: 1px;
+}
+.array li {
+    padding: 0;
+    margin: 0;
+}
+
+ul.array li, .array li span  {
+    display: block;
+    height: 2em;
+}
+.array li span {
+    float: left;
+    line-height: 2em;
+    overflow: hidden;
+}
+.array li span.first {
+  clear: left;
+}
+.array .header span, .array .last  {
+    border: 0;
+}
+
+.array .day {
+    width: 7em;
+    text-align: center;
+    border-right: 1px solid #fff;
+}
+
+.array .heure {
+    width: 4em;
+    text-align: center;
+    border-right: 1px solid #fff;
+}
+.array .nombre_ecoutes {
+    width: 5em;
+    text-align: center;
+    border-right: 1px solid #fff;
+}
+
+.array .ip {
+    width: 9em;
+    text-align: center;
+    border-right: 1px solid #fff;
+}
+
+.array .useragent {
+    width: 40em;
+    text-align: left;
+    border-right: 1px solid #fff;
+}
+
+.array .title {
+    width: 40em;
+    text-align: left;
+    padding-left: .5em;
+}
+
+.ui-tooltip span {
+    font-size: 65%;
+}
+

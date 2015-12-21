@@ -1,0 +1,286 @@
+/*
+ * Project: CirclePlayer
+ * http://www.jplayer.org
+ *
+ * Copyright (c) 2012 Happyworm Ltd
+ *
+ * Author: Silvia Benvenuti
+ * Edited by: Mark J Panaghiston
+ * Date: 2nd October 2012
+ * Artwork inspired by: http://forrst.com/posts/Untitled-CJz
+ */
+
+/* style Radio Campus */
+@font-face {
+    font-family: 'Raisonne';
+    src: url('./fonts/raisonne_demibold.eot');
+    src: url('./fonts/raisonne_demibold.eot') format('embedded-opentype'),
+         url('./fonts/raisonne_demibold.woff') format('woff'),
+         url('./fonts/raisonne_demibold.ttf') format('truetype'),
+         url('./fonts/raisonne_demibold.svg#RaisonneDemiBold') format('svg');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/Montserrat-Regular.ttf') format('truetype'),
+	url('./fonts/Montserrat-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  font-style: bold;
+  font-weight: 700;
+  src: url('./fonts/Montserrat-Bold.ttf') format('truetype'),
+      url('./fonts/Montserrat-Bold.woff') format('woff');
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0em 0 0.5em;
+  font-weight: inherit;
+  font-family: 'Raisonne';
+}
+
+body {
+    font-family: "Montserrat", sans-serif;
+}
+
+a {
+    color: black;
+    text-decoration: underline;
+}
+a:hover {
+    color: black;
+    text-decoration: none;
+  color: #555;
+}
+a:visited {
+  color: #333;
+}
+
+/* thème player */
+
+.cp-container {
+	position:relative;
+	width:336px; /* 200 - (2 * 48) */
+	height:376px;
+	background:url("bgr.jpg") 0 0 no-repeat;
+	padding:10px 41px;
+	-webkit-tap-highlight-color:rgba(0,0,0,0);
+	margin:34px auto auto;
+}
+
+.cp-container :focus {
+	border:none;
+	outline:0;
+}
+
+.cp-buffer-1,
+.cp-buffer-2,
+.cp-progress-1,
+.cp-progress-2 {
+	position:absolute;
+	top:0;
+	left:0;
+	width:335px;
+	height:335px;
+	clip:rect(0px,167px,335px,0px);
+
+	-moz-border-radius:167px;
+	-webkit-border-radius:167px;
+	border-radius:167px;
+}
+
+.cp-buffer-1,
+.cp-buffer-2 {
+	background:url("buffer.png") 0 0 no-repeat;
+}
+
+
+/* FALLBACK for .progress
+ * (24 steps starting from 1hr filled progress, Decrease second value by 104px for next step)
+ * (It needs the container selector to work. Or use div)
+ */
+
+.cp-container .cp-fallback {
+	background:url("progress_sprite.jpg") no-repeat;
+	background-position:0 335px; 
+}
+
+.cp-progress-1,
+.cp-progress-2 {
+	background:url("progress.png") 0 0 no-repeat;
+}
+
+.cp-buffer-holder,
+.cp-progress-holder,
+.cp-circle-control {
+	position:absolute;
+	width:335px;
+	height:335px;
+} 
+
+.cp-circle-control {
+	cursor:pointer;
+}
+
+.cp-buffer-holder,
+.cp-progress-holder {
+	clip:rect(0px,335px,335px,167px);
+	display:none;
+}
+
+
+/* This is needed when progress is greater than 50% or for fallback */
+
+.cp-buffer-holder.cp-gt50,
+.cp-progress-holder.cp-gt50,
+.cp-progress-1.cp-fallback{
+	clip:rect(auto, auto, auto, auto);
+}
+
+.cp-controls {
+	margin:0;
+	padding:142px;
+}
+
+.cp-controls li{
+	list-style-type:none;
+	display:block;
+
+	/*IE Fix*/
+	position:absolute;
+}
+
+.cp-controls li a{
+	position:relative;
+	display:block;
+	width:50px;
+	height:50px;
+	text-indent:-9999px;
+	z-index:1;
+	cursor:pointer;
+}
+
+.cp-controls .cp-play {
+	background:url("controls.jpg") 0 0 no-repeat;
+}
+
+.cp-controls .cp-play:hover {
+	background:url("controls.jpg") -50px 0 no-repeat;
+}
+
+.cp-controls .cp-pause {
+	background:url("controls.jpg") 0 -50px no-repeat;
+}
+
+.cp-controls .cp-pause:hover {
+	background:url("controls.jpg") -50px -50px no-repeat;
+}
+
+.cp-jplayer {
+	width:0;
+	height:0;
+}
+
+/* Valentin */
+
+body {
+	max-width:1024px;
+	margin : auto;
+}
+ 
+#date_prev,
+#date_next {
+	width : 10%;
+	float : left;
+	text-align: center;
+	padding-top: 150px;
+}
+
+
+#campus_player {
+	width : 80%;
+	float : left;
+}
+
+#time_list {
+	width : 100%;
+	float : left;
+}
+
+#date_of_podcast {
+	position:absolute;
+	left:70%;
+	top : 20px;
+	font-size: 20pt;
+}
+#hour_of_podcast {
+	font-size: 15pt;
+	text-align:center;
+	width:100%;
+	height: 3em;
+}
+
+#tracklist li {
+	float: left;
+	width: 50px;
+	display: block;
+
+}
+#tracklist li p {
+	display: block;
+	width: 50px;
+	height: 40px;
+	text-align: center;
+	cursor: pointer;
+	padding: 0;
+	margin: 0;
+	line-height:40px;
+}
+.time_empty { 
+color: #ccc; 
+cursor: auto !important;
+}
+
+#tracklist li.time_active p.time_elem {
+    font-weight: bold;
+    background: url("circle.png") 5px 0 no-repeat;
+}
+
+#tracklist .time_popup ul, #tracklist .time_popup li {
+	border: 0;
+	padding: 0;
+	margin: 0;
+	width:150px;
+	float: none;
+}
+#tracklist .time_popup li {
+  border-bottom: 1px solid #eee;
+  
+}
+
+#tracklist .time_popup {
+	width:150px;
+	background: url("fleche.png") 0 0 no-repeat;
+	display:none;
+	position: relative;
+	top: 0;
+	padding-top: 20px;
+	left: -50px;
+	font-size: 80%;  
+}
+.time_elem:hover {
+    text-decoration: underline;
+}
+
+/* ajustements de démarrage */
+#main-play {
+    display: none;
+}
