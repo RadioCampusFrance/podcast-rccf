@@ -241,6 +241,19 @@ class Podcast {
 
 	$podcasts = load_podcasts_from_ws($date);
 	
+	$actionSearch = $_GET["search"];
+	$actionLive = $_GET["live"];
+	
+	$actionRecent = $_GET["recent"];
+        if (isset($actionRecent) && $time == "") {
+	  $time = intval(date("H"));
+	  if (!isset($podcasts[$time]) || $podcasts[$time]->ok) {
+	    $time = "";
+	    $actionLive = true;
+	    unset($actionRecent);
+	    }
+	}
+	
 	$fulldate = strftime("%A %e %B %Y",strtotime($date));
 ?>
 
