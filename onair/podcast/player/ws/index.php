@@ -7,7 +7,7 @@ $data = RestUtils::processRequest();
 
 
 function get_json($date) {
-  $file_day = "../OK/".$date."/config.txt";
+  $file_day = "../../OK/".$date."/config.txt";
   if (file_exists($file_day))
     return json_decode(file_get_contents($file_day));
   else
@@ -116,6 +116,7 @@ class Podcast {
   var $url;
   var $podcastable;
   var $image;
+  var $ecoutes;
 
 
   function __construct() {
@@ -145,16 +146,6 @@ class Podcast {
     $this->time = intval($jsonEntry->time);
     $titles = explode('|', $jsonEntry->title);
     $this->title = $jsonEntry->title;
-    if (count($titles) == 1) {
-      $this->titleItems = $jsonEntry->title;
-    }
-    else {
-      $this->titleItems = "<ul>";
-      foreach($titles as $t) {
-	  $this->titleItems = $this->titleItems . "<li>" . $t . "</li>";
-      }
-      $this->titleItems = $this->titleItems . "</ul>";
-    }
     $this->ok = true;
     $this->duration = 1;
     $this->url = ltrim($jsonEntry->url);
@@ -169,123 +160,13 @@ class Podcast {
       $this->image = "";
   }
 
-  static function emptyToItem($hour) {
-      echo "<p class=\"time_empty\">".$hour."h</p>";
-  }
 
-  function toItem($date, $ecoutes) {
-    if ($this->ok) {
-      if (strlen($this->mp3) != 0) {
-	echo '<p class="time_elem';
-      }
-      else {
-	echo '<p class="time_titles';
-      }
-      if ($this->duration != 1 || isset($this->$shortTitle))
-	echo " large";
-      if (strlen($this->mp3) != 0) {
-	echo '" onclick="';
-	$this->toLaunchTrack($date, true, true);
-	echo '" ';
-      }
-      else {
-	echo " time_empty\"";
-	if ($this->future && $this->podcastable)
-	  echo ' title="Bientôt en ligne&nbsp;!"';
-      }
-      echo  'onmouseover="document.getElementById(\'title'.$this->time.'\').style.display=\'block\';"  onmouseout="document.getElementById(\'title'.$this->time.'\').style.display=\'none\';">';
-      if (isset($this->shortTitle))
-	echo $this->shortTitle;
-      else {
-	echo $this->time.'h';
-	if ($this->duration != 1)
-	  echo "-".($this->time+$this->duration - 1).'h';
-      }
-      echo '';
-      echo "<div id='title".$this->time."' class=\"time_popup\">".$this->titleItems;
-
-      $h = intval($this->time);
+  function setEcoutes($ecoutes) {
+        $h = intval($this->time);
       if (isset($ecoutes[$h]) && strlen($this->mp3) != 0) {
-	$add = false;
-	$nb = $ecoutes[$h][0] + $ecoutes[$h][1];
-	if ($nb != 0) {
-	  echo "<br /><span style=\"font-size: 70%; text-align:right\">".$nb . " écoute";
-	  $add = true;
-	  if ($nb > 1)
-	    echo "s";
-	  echo "</span>";
-	}
+	$this->ecoutes = $ecoutes[$h];
       }
-      if (strlen($this->mp3) == 0 && $this->future && $this->podcastable) {
-	 echo "<br /><span style=\"font-size: 70%; text-align:right\">Bientôt en ligne&nbsp;!</span>";
-      }
-      echo "</div></p>\n";
-    }
-    else {
-      echo '<p class="';
-      if (count($this->paulo_entries) == 0) {
-	echo 'time_empty';
-	if ($this->duration != 1 || isset($this->$shortTitle))
-	  echo " large";
-	echo '">';
-	if (isset($this->shortTitle))
-	  echo $this->shortTitle;
-	else {
-	  echo $this->time.'h';
-	  if ($this->duration != 1)
-	    echo "-".($this->time+$this->duration).'h';
-	}
-	echo '</p>';
-      } else {
-	echo 'time_titles';
-	if ($this->duration != 1 || isset($this->$shortTitle))
-	  echo " large";
-	echo '" onclick="';
-	$this->toDisplayEntries(true);
-	echo '" onmouseover="document.getElementById(\'title'.$this->time.'\').style.display=\'block\';"  onmouseout="document.getElementById(\'title'.$this->time.'\').style.display=\'none\';" >';
-	if (isset($this->shortTitle))
-	  echo $this->shortTitle;
-	else {
-	  echo $this->time.'h';
-	  if ($this->duration != 1)
-	    echo "-".($this->time+$this->duration).'h';
-	}
-	echo '';
-	echo "<div id='title".$this->time."' class=\"time_popup\">Programmation musicale</div></p>\n";
-      }
-    }
   }
-
-  function toMusicEntries() {
-    echo "<ul>";
-    $id = 0;
-    foreach($this->paulo_entries as $entry) {
-      echo "<li id=\"entry-".$this->time."-".$id."\" title=\"".$entry["time"].": ".$entry["title"].", ".$entry["author"]."\"><span>".$entry["time"]. "</span><em>" .$entry["title"] ."</em>, ".$entry["author"]."</li>";
-      $id = $id + 1;
-    }
-    echo "</ul>";
-  }
-
-  function toLaunchTrack($date, $play, $quotes = false) {
-    $t = str_replace("'", "\'", $this->title);
-    if ($quotes)
-      $t = str_replace("\"", "&quot;", $t);
-    echo 'launch_track(\''.$date.'/'.$this->mp3.'\',\''.$t.'\',\''.$this->time.'\'';
-    if ($play)
-      echo ", true";
-    else
-      echo ", false";
-    echo ", '".$this->url."')";
-  }
-
-  function toDisplayEntries($active) {
-    if ($active)
-      echo 'display_entries('.$this->time.', true)';
-    else
-      echo 'display_entries('.$this->time.', false)';
-  }
-  
-
 }
 
 function load_podcasts($jsonDay, $date, $time) {
@@ -385,6 +266,12 @@ function load_podcasts($jsonDay, $date, $time) {
 	    }
 	  }
 
+	  
+        // on modifie les écoutes
+        foreach($podcasts as $p)
+            $p->setEcoutes($ecoutes);
+	  
+        // retour
 	
 	switch($data->getMethod())  
         {  
