@@ -3,75 +3,18 @@ include 'outilEtRequete.php';
 include 'configPaulo.php';
 
 
-$html = implode('', file('http://80.11.133.224/cgi-bin/www.x'));
+$json = file_get_contents("http://80.11.133.224/api/live-info?type=show_content");
+$entries = json_decode($json);
+$entries = $entries->currentShowContent;
 
-$pattern= '/<TR><TD><FONT ([^>]*)>([^<]*)<\/font><\/TD><TD><FONT [^>]*>([^<]*)<\/font><\/TD><TD><FONT [^>]*>([^<]*)</';
 
-preg_match_all($pattern, $html, $matches, PREG_SET_ORDER);
+function convert_date($timestamp) {
+    $dt = new DateTime($timestamp, new DateTimeZone('UTC'));
 
-date_default_timezone_set('Europe/Paris');
+    $dt->setTimeZone(new DateTimeZone('Europe/Paris'));
 
-$yesterday=date("Y-m-d", time() - 60 * 60 * 24);
-$today=date("Y-m-d");
-$tomorrow=date("Y-m-d", time() + 60 * 60 * 24);
-
-$hour=date("H");
-$pm=$hour > 12;
-
-$entries = array();
-
-// create the elements 
-
-echo "Logging Paulo\n";
-$found=false;
-foreach($matches as $var) {
-    $color = $var[1];
-    $timestamp = $var[2];
-    $title = $var[3];
-    $author = $var[4];
-
-    $patternbis='/([0-9][0-9]):[0-9][0-9]:[0-9][0-9]/';
-    preg_match_all($patternbis, $timestamp, $matchesbis, PREG_SET_ORDER);
-    $line_hour=$matchesbis[0][0];
-    if ($pm and $line_hour < 12) {
-	$datetime = $tomorrow . " " . $timestamp;
-    }
-    else if (!$pm and $line_hour > 12) {
-	$datetime = $yesturday . " " . $timestamp;
-    }
-    else {
-	$datetime = $today . " " . $timestamp;
-    }
-
-    $next = false;($color == "COLOR=\"#00B4FF\" face=\"Trebuchet, Tahoma, Verdana, sans-serif\"");
-
-    $index = count( $entries ) - 1;
-    if ($index >= 0)
-      $entries[$index]["end"] = $datetime;
-    $entries[] = array( "datetime" => $datetime, "title" => $title, "author" => $author);
-    if ($next) {
-      $found = true;
-      break;
-    }
+    return $dt->format('Y-m-d H:i:s');
 }
-print_r($entries);
-
-if (!$found) {
-  $patternbis= '/fin = correct_date\(([0-9]*), ([0-9]*), ([0-9]*), ([0-9]*), ([0-9]*), ([0-9]*)/';
-  preg_match_all($patternbis, $html, $matchesbis, PREG_SET_ORDER);
-  if (count($matchesbis) != 0) {
-    $id = count($entries) - 1;
-    $entries[$id]["end"] = $matchesbis[0][1]."-".$matchesbis[0][2]."-".$matchesbis[0][3]." ".$matchesbis[0][4].":".$matchesbis[0][5].":".$matchesbis[0][6];
-  }
-  else {
-    array_pop($entries);
-  }
-}
-
-
-
-// store it in the database
-
 
 try {
 	$pdo_options[PDO::ATTR_ERRMODE] = PDO::ERRMODE_EXCEPTION;		
@@ -79,8 +22,10 @@ try {
 	$bdd = new PDO('mysql:host='._PAULODB_SERVEUR.';dbname='._PAULODB_BD, _PAULODB_LOGIN, _PAULODB_MDP, $pdo_options);
 
 	foreach ($entries as $entry)
-	  if (isset($entry["datetime"]) && isset($entry["end"])) {
-	    $sql = "INSERT INTO titres_paulo (begin, end, title, author) VALUES ('".$entry["datetime"]."', '".$entry["end"]."', ". $bdd->quote($entry["title"]).", ".$bdd->quote($entry["author"]).") ON DUPLICATE KEY UPDATE end='".$entry["end"]."';";
+	  if (isset($entry->sched_starts) && isset($entry->sched_ends)) {
+            $entry->sched_ends = convert_date($entry->sched_ends);
+            $entry->sched_starts = convert_date($entry->sched_starts);
+	    $sql = "INSERT INTO titres_paulo (begin, end, title, author) VALUES ('".$entry->sched_starts."', '".$entry->sched_ends."', ". $bdd->quote($entry->file_track_title).", ".$bdd->quote($entry->file_artist_name).") ON DUPLICATE KEY UPDATE end='".$entry->sched_ends."';";
 	    $prep = $bdd->query($sql);
 	  }
 
