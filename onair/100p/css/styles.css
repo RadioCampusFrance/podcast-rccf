@@ -1,0 +1,60 @@
+.menu-styles {
+    font-size: 140%;
+}
+
+.circle-style {
+    display: inline-block;
+    height: 42px;
+    width: 42px;
+    background-image: url("images/rayures.png");
+    vertical-align: middle;
+    margin: 5px;
+    border-radius: 21px;
+    text-align: center;
+    line-height: 42px;
+    color: black;
+    font-size: 12px;
+    font-weight: bold;
+}
+a:hover .circle-style, .selected .circle-style {
+    background-image: none;
+    color: white;
+}
+
+.style-tout a:hover .circle-style, .style-tout.selected .circle-style {
+    background-color: black;
+}
+
+.style-metal a:hover .circle-style, .style-metal.selected .circle-style {
+    background-color: #FF2511;
+}
+.style-rock a:hover .circle-style, .style-rock.selected .circle-style {
+    background-color: #DF004F;
+}
+.style-chanson a:hover .circle-style, .style-chanson.selected .circle-style {
+    background-color: #920F7F;
+}
+.style-hip-hop a:hover .circle-style, .style-hip-hop.selected .circle-style {
+    background-color: #5C4492;
+}
+.style-rdw a:hover .circle-style, .style-rdw.selected .circle-style {
+    background-color: #67B033;
+}
+.style-electro a:hover .circle-style, .style-electro.selected .circle-style {
+    background-color: #D2EA2A;
+}
+.style-jazz a:hover .circle-style, .style-jazz.selected .circle-style {
+    background-color: #FBBC03;
+}
+.style-pop a:hover .circle-style, .style-pop.selected .circle-style {
+    background-color: #FD5205;
+}
+
+
+/*#0092CD
+#67B033
+
+#FFFE34
+#0047FD
+#FB9900*/
+

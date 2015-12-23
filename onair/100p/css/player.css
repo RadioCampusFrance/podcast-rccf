@@ -1,0 +1,54 @@
+.jp-player {
+    display: block;
+    text-align: center;
+    font-size: 120%;
+}
+.jp-player>span {
+        margin: auto;
+}
+.jp-player span {
+        display: block;
+}
+#duration-podcast {
+    float: right;
+    text-align: right;
+    padding-right: 2em;
+}
+#currentTime-podcast {
+    float: left;
+    text-align: left;
+    padding-left: 2em;
+}
+#title-podcast {
+    clear: both;
+    font-weight: bold;
+    font-size: 130%;
+    margin-top: 1em;
+}
+.jp-player .time-info {
+    margin-top: .2em;
+}
+.jp-player .time-info span {
+        width: 45%;
+}
+
+.jp-seek-bar {
+        background-color: #EEEEEE;
+        height: 20px;
+        padding: 2px;
+        border-radius: 2px;
+        cursor: pointer;
+}
+.jp-play-bar {
+    background-color: black;
+    height: 16px;
+    border-radius: 2px;
+}
+.jp-progress {
+    clear: both;
+    margin-top: 1em;
+}
+#style-podcast {
+    text-align: center;
+    font-size: 36px;
+}
