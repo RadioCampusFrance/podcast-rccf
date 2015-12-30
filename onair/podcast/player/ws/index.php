@@ -61,12 +61,6 @@ function get_date(&$date, &$day, &$month, &$year) {
 
 }
 
-function get_time(&$time) {
-  $time = $_GET['time'];
-  if (!ctype_digit($time) || ($time < 0) || ($time > 24))
-    $time = "";
-}
-
 function load_ecoutes($date) {
   $result = array();
   
@@ -126,7 +120,7 @@ class Podcast {
         } 
   }
 
-  function __construct3($time, $entries, $duration) {
+  function __construct4($time, $entries, $duration, $date) {
     $this->time = $time;
     $this->ok = false;
     $this->paulo_entries = $entries;
@@ -134,10 +128,11 @@ class Podcast {
     $this->future = false;
     $this->url = "";
     $this->podcastable = false;
-    $this->image = "";
+    $this->loadImage($date);
+    
   }
 
-  function __construct2($jsonEntry, $date = "") {
+  function __construct2($jsonEntry, $date) {
     $this->mp3 = ltrim($jsonEntry->mp3);
     $this->future = $this->mp3 == "future";
     if ($this->future)
@@ -149,14 +144,32 @@ class Podcast {
     $this->duration = 1;
     $this->url = ltrim($jsonEntry->url);
     $this->podcastable = $jsonEntry->podcastable;
-    
+    $this->loadImage($date);
+  }
+  
+  function loadImage($date) {
+    $this->image = "";
     if ($date != "") {
       get_details_from_date($date, $day, $month, $year);
       $jsonObject = json_decode(file_get_contents("http://" .$_SERVER['HTTP_HOST']. "/ws/?req=image&t=" . urlencode($this->title) . "&h=" . $this->time . "&y=" . $year . "&m=" . $month . "&d=" . $day));
+      
       $this->image = $jsonObject[0]->uri;
     }
-    else 
-      $this->image = "";
+    if ($this->image == "") {
+      $this->image = "/onair/podcast/player/images/fond-";
+      if ($this->time < 6) {
+            $this->image .= "bleu.png";
+      }
+      else if ($this->time < 12) {
+            $this->image .= "jaune.png";
+      }
+      else if ($this->time < 18) {
+            $this->image .= "rouge.png";
+      }
+      else {
+            $this->image .= "vert.png";
+      }
+    }
   }
 
 
@@ -168,11 +181,11 @@ class Podcast {
   }
 }
 
-function load_podcasts($jsonDay, $date, $time) {
+function load_podcasts($jsonDay, $date) {
   $result = array();
   if ($jsonDay->track)
     foreach($jsonDay->track as $track) {
-	$result[intval($track->time)] = new Podcast($track, $time == $track->time ? $date : "");
+	$result[intval($track->time)] = new Podcast($track, $date);
     }
   return $result;
 }
@@ -196,7 +209,6 @@ function load_podcasts($jsonDay, $date, $time) {
 	setlocale (LC_TIME, 'fr_FR.utf8','fra'); 
 	date_default_timezone_set('Europe/Paris');
 	get_date($date, $day, $month, $year);
-	get_time($time);
 
 	$datex = explode('-',$date);
 
@@ -205,7 +217,7 @@ function load_podcasts($jsonDay, $date, $time) {
 
 	$ecoutes = load_ecoutes($date);
 	
-	$podcasts = load_podcasts($jsonDay, $date, $time);
+	$podcasts = load_podcasts($jsonDay, $date);
 
 	$first = -1;
 	$second = -1;
@@ -226,13 +238,13 @@ function load_podcasts($jsonDay, $date, $time) {
 
 	if ($first != 0) {
 	  $entries = get_paulo_entries($date, 0, $bdd, "..", $first);
-	  $podcasts[0] = new Podcast(0, $entries, $first);
+	  $podcasts[0] = new Podcast(0, $entries, $first, $date);
 	  if ($first != 1)
 	    $podcasts[0]->shortTitle = "la nuit";
 	}
 	if ($first == 0 && $second > 0) {
 	  $entries = get_paulo_entries($date, $first + 1, $bdd, "..", $second);
-	  $podcasts[$first + 1] = new Podcast($first + 1, $entries, $second-1);
+	  $podcasts[$first + 1] = new Podcast($first + 1, $entries, $second-1, $date);
 	  if ($second != 1)
 	    $podcasts[$first + 1]->shortTitle = "la nuit";
 	 }
@@ -259,7 +271,7 @@ function load_podcasts($jsonDay, $date, $time) {
 	  if (!isset($podcasts[$i])) {
 	    $entries = get_paulo_entries($date, $i, $bdd, "..");
 	    if ($entries && count($entries) > 0) {
-	      $podcasts[$i] = new Podcast($i, $entries, 1);
+	      $podcasts[$i] = new Podcast($i, $entries, 1, $date);
 	    }
 	  }
 

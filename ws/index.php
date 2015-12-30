@@ -335,7 +335,9 @@ function imageEmission($bdd) {
 	$prep = $bdd->query($sql);
 	  $resultat = array();
 	   while ($donnees = $prep->fetch(PDO::FETCH_OBJ)) {
-		 $donnees->uri = '/sites/default/files/' . str_replace("public://", "", $donnees->uri);
+                 $donnees->uri = str_replace("public://", "", $donnees->uri);
+                 if ($donnees->uri != "")
+                    $donnees->uri = '/sites/default/files/' . $donnees->uri;
 		 $resultat[] = $donnees;
 		 
 	    }
