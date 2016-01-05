@@ -374,7 +374,6 @@
         }
         ?>
 
-    
     <?php 
     $url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
     $prefix_url = parse_url($url, PHP_URL_PATH);
@@ -396,10 +395,38 @@
                         });
     }
 
+    var bg_images = {};
     function set_style_name(ss) {
          $('#style-podcast').replaceWith('<div id="style-podcast">' + podcasts_style[ss] + '</div>');
     }
-	
+    function load_background_image(ss) {
+    
+        if (ss == "tout")
+            bg_images[ss] = "";
+        else {
+             $.ajax({
+			type: "GET",
+			async: false,
+			timeout: 5000,
+			url: "http://" + window.location.hostname + "/ws/?req=image&t=100% " + encodeURIComponent(ss),
+			success:function(data)
+			{
+                            bg_images[ss] = data[0]["uri"];    
+			},
+			error: function (textStatus, errorThrown) {
+            }});
+        }
+            
+    }
+    function set_background_image(ss) {
+        if (!(ss in bg_images)) {
+            load_background_image(ss);
+        }
+        imageUrl = bg_images[ss];
+        if (imageUrl != undefined)
+            $('#style-podcast').css('background-image', 'url(' + imageUrl + ')');
+    }
+
     for(var podcast in podcasts) {
         $('.pause').click(function() {
                         $('.pause').addClass('hide');
@@ -447,6 +474,8 @@
                         reorder_entries(selected);
                         // set the style name
                          set_style_name(selected);
+                        // set background image
+                        set_background_image(podcasts_style[selected]);
                         
                         $('#podcast-' + selected).addClass('selected');
                         $('#podcast-' + selected).removeClass('seen');
@@ -507,6 +536,8 @@
         }
     ?>
         set_style_name(selected);
+        set_background_image(podcasts_style[selected]);
+
     });
     
     

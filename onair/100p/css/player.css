@@ -51,4 +51,8 @@
 #style-podcast {
     text-align: center;
     font-size: 36px;
+    background-size: cover;
+    background-position: bottom;
+    color: #fff;
+    border-radius: 5px;
 }
