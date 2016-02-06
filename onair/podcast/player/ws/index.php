@@ -2,8 +2,15 @@
 
 include 'configPaulo.php';
 include 'outilEtRequete.php';
+include '../../../../ws/config.php';
+
 header("Content-Type: 'text/html'; charset=utf8");
 $data = RestUtils::processRequest();  
+
+function startsWith($haystack, $needle) {
+    // search backwards starting from haystack length characters from the end
+    return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
+}
 
 
 function get_json($date) {
@@ -61,7 +68,7 @@ function get_date(&$date, &$day, &$month, &$year) {
 
 }
 
-function load_ecoutes($date) {
+function load_ecoutes($date, $bdd) {
   $result = array();
   
   for($i = 0; $i < 24; ++$i) {
@@ -71,10 +78,7 @@ function load_ecoutes($date) {
 
   $datetime = $date . " 00:00:00";
 
-	$options = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 
-	try {
-	$bdd = new PDO('mysql:host='._PAULODB_SERVEUR.';dbname='._PAULODB_BD, _PAULODB_LOGIN, _PAULODB_MDP, $options);
 
   $sql = "Select timeslot, download, count(*) as nb From log_ecoute where (timeslot >= ".$bdd->quote($datetime)." and timeslot <= DATE_ADD(".$bdd->quote($datetime).", INTERVAL 24 HOUR)) group by timeslot, download;";
 	
@@ -87,11 +91,8 @@ function load_ecoutes($date) {
     $h = intval($elems2[0]);
     $download = intval($row["download"]);
     $result[$h][$download] = $row["nb"];
-  }
-	}
-	catch (PDOException $Exception ) {
-	}
 
+  }
 
   return $result;
 }
@@ -120,7 +121,7 @@ class Podcast {
         } 
   }
 
-  function __construct4($time, $entries, $duration, $date) {
+  function __construct5($bdd, $time, $entries, $duration, $date) {
     $this->time = $time;
     $this->ok = false;
     $this->paulo_entries = $entries;
@@ -128,11 +129,11 @@ class Podcast {
     $this->future = false;
     $this->url = "";
     $this->podcastable = false;
-    $this->loadImage($date);
+    $this->loadImage($date, $bdd);
     
   }
 
-  function __construct2($jsonEntry, $date) {
+  function __construct3($bdd, $jsonEntry, $date) {
     $this->mp3 = ltrim($jsonEntry->mp3);
     $this->future = $this->mp3 == "future";
     if ($this->future)
@@ -144,16 +145,36 @@ class Podcast {
     $this->duration = 1;
     $this->url = ltrim($jsonEntry->url);
     $this->podcastable = $jsonEntry->podcastable;
-    $this->loadImage($date);
+    $this->loadImage($date, $bdd);
   }
   
-  function loadImage($date) {
+  function loadImage($date, $bdd) {
     $this->image = "";
     if ($date != "") {
       get_details_from_date($date, $day, $month, $year);
-      $jsonObject = json_decode(file_get_contents("http://" .$_SERVER['HTTP_HOST']. "/ws/?req=image&t=" . urlencode($this->title) . "&h=" . $this->time . "&y=" . $year . "&m=" . $month . "&d=" . $day));
       
-      $this->image = $jsonObject[0]->uri;
+       $sql = "SELECT n.title, j.field_jour_value, h.field_heure_value, fm.uri from drupal_node as n
+			LEFT JOIN drupal_field_data_field_heure as h ON h.entity_id = n.vid
+			LEFT JOIN drupal_field_data_field_duree as d ON d.entity_id = n.vid
+			LEFT JOIN drupal_field_data_field_jour as j ON j.entity_id = n.vid
+			LEFT JOIN drupal_field_data_field_photo as ph ON ph.entity_id = n.vid
+			LEFT JOIN drupal_file_managed as fm ON fm.fid = ph.field_photo_fid
+			WHERE n.type LIKE 'emission'";
+	  $jour = date('N', mktime(0,0,0,$month,$day,$yeary));
+
+	    $sql .= " AND j.field_jour_value = {$jour}";
+
+	$sql .= " AND n.title = ".$bdd->quote($this->title)."
+			GROUP BY n.nid;";
+      
+      $prep = $bdd->query($sql);
+	  
+	   while ($donnees = $prep->fetch(PDO::FETCH_OBJ)) {
+                 $this->image = str_replace("public://", "", $donnees->uri);
+                 if ($this->image != "")
+                    $this->image = '/sites/default/files/' . $this->image;
+		 break;
+            }
     }
     if ($this->image == "") {
       $this->image = "/onair/podcast/player/images/fond-";
@@ -179,13 +200,21 @@ class Podcast {
 	$this->ecoutes = $ecoutes[$h];
       }
   }
+  
+  function is100p100() {
+    return startsWith($this->title, "100%");
+  }
+  
+  function set_paulo_entries($entries) {
+    $this->paulo_entries = $entries;
+  }
 }
 
-function load_podcasts($jsonDay, $date) {
+function load_podcasts($jsonDay, $date, $bdd) {
   $result = array();
   if ($jsonDay->track)
     foreach($jsonDay->track as $track) {
-	$result[intval($track->time)] = new Podcast($track, $date);
+	$result[intval($track->time)] = new Podcast($bdd, $track, $date);
     }
   return $result;
 }
@@ -193,11 +222,13 @@ function load_podcasts($jsonDay, $date) {
 	$options = array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8",PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 
 	try {
-		$bdd = new PDO('mysql:host='._PAULODB_SERVEUR.';dbname='._PAULODB_BD, _PAULODB_LOGIN, _PAULODB_MDP, $options);
+		$bdd_paulo = new PDO('mysql:host='._PAULODB_SERVEUR.';dbname='._PAULODB_BD, _PAULODB_LOGIN, _PAULODB_MDP, $options);
+		$bdd_drupal = new PDO('mysql:host='._DRUPAL_SERVEUR.';dbname='._DRUPAL_BD, _DRUPAL_LOGIN, _DRUPAL_MDP, $options);
 	}
 	catch (PDOException $Exception ) {
-	$bdd = null;
-	//exit("Des problèmes techniques nous empêchent temporairement de vous proposer les podcasts... Veuillez nous excuser pour la gêne occasionnée.");
+            $bdd_paulo = null;
+            $bdd_drupal = null;
+            exit("Des problèmes techniques nous empêchent temporairement de vous proposer les podcasts... Veuillez nous excuser pour la gêne occasionnée.");
 	}
 
         include("../lib/paulo_entries.php");
@@ -215,9 +246,9 @@ function load_podcasts($jsonDay, $date) {
 
 	$jsonDay = get_json($date);
 
-	$ecoutes = load_ecoutes($date);
+	$ecoutes = load_ecoutes($date, $bdd_paulo);
 	
-	$podcasts = load_podcasts($jsonDay, $date);
+	$podcasts = load_podcasts($jsonDay, $date, $bdd_drupal);
 
 	$first = -1;
 	$second = -1;
@@ -237,14 +268,14 @@ function load_podcasts($jsonDay, $date) {
         
 
 	if ($first != 0) {
-	  $entries = get_paulo_entries($date, 0, $bdd, "..", $first);
-	  $podcasts[0] = new Podcast(0, $entries, $first, $date);
+	  $entries = get_paulo_entries($date, 0, $bdd_paulo, "..", $first);
+	  $podcasts[0] = new Podcast($bdd_drupal, 0, $entries, $first, $date);
 	  if ($first != 1)
 	    $podcasts[0]->shortTitle = "la nuit";
 	}
 	if ($first == 0 && $second > 0) {
-	  $entries = get_paulo_entries($date, $first + 1, $bdd, "..", $second);
-	  $podcasts[$first + 1] = new Podcast($first + 1, $entries, $second-1, $date);
+	  $entries = get_paulo_entries($date, $first + 1, $bdd_paulo, "..", $second);
+	  $podcasts[$first + 1] = new Podcast($bdd_drupal, $first + 1, $entries, $second-1, $date);
 	  if ($second != 1)
 	    $podcasts[$first + 1]->shortTitle = "la nuit";
 	 }
@@ -262,23 +293,28 @@ function load_podcasts($jsonDay, $date) {
 	      $elem->time = $i;
 	      $elem->title = $program[0];
 	      $elem->podcastable = $program[1];
-	      $podcasts[$i] = new Podcast($elem, $date);
+	      $podcasts[$i] = new Podcast($bdd_drupal, $elem, $date);
 	    }
 	  }
 	}
 
 	for($i = $second; $i != 24; $i++)
 	  if (!isset($podcasts[$i])) {
-	    $entries = get_paulo_entries($date, $i, $bdd, "..");
+	    $entries = get_paulo_entries($date, $i, $bdd_paulo, "..");
 	    if ($entries && count($entries) > 0) {
-	      $podcasts[$i] = new Podcast($i, $entries, 1, $date);
+	      $podcasts[$i] = new Podcast($bdd_drupal, $i, $entries, 1, $date);
 	    }
 	  }
 
 	  
-        // on modifie les écoutes
-        foreach($podcasts as $p)
+        // on modifie les écoutes, et on ajoute les titres pour les 100%
+        foreach($podcasts as $p) {
             $p->setEcoutes($ecoutes);
+            if ($p->is100p100()) {
+                $entries = get_paulo_entries($date, $p->time, $bdd_paulo, "..");
+                $p->set_paulo_entries($entries);
+            }
+        }
 	  
         // retour
 	
