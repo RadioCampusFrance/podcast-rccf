@@ -7,6 +7,9 @@ include '../../../../ws/config.php';
 header("Content-Type: 'text/html'; charset=utf8");
 $data = RestUtils::processRequest();  
 
+$timezone_server = date_default_timezone_get();
+
+
 function startsWith($haystack, $needle) {
     // search backwards starting from haystack length characters from the end
     return $needle === "" || strrpos($haystack, $needle, -strlen($haystack)) !== false;
@@ -130,7 +133,8 @@ class Podcast {
     $this->url = "";
     $this->podcastable = false;
     $this->loadImage($date, $bdd);
-    
+
+    $this->setFileTime($date);
   }
 
   function __construct3($bdd, $jsonEntry, $date) {
@@ -140,12 +144,15 @@ class Podcast {
       $this->mp3 = "";
     $this->time = intval($jsonEntry->time);
     
+    
     $this->title = $jsonEntry->title;
     $this->ok = true;
     $this->duration = 1;
     $this->url = ltrim($jsonEntry->url);
     $this->podcastable = $jsonEntry->podcastable;
     $this->loadImage($date, $bdd);
+    
+    $this->setFileTime($date);
   }
   
   function loadImage($date, $bdd) {
@@ -193,6 +200,19 @@ class Podcast {
     }
   }
 
+  function setFileTime($date) {
+    global $timezone_server;
+    if ($this->mp3 && $this->mp3 != "") {
+        $fichier = "../../OK/".$date."/".$this->mp3;
+        if (file_exists($fichier)) {
+            $this->filetime = date("Y-m-d h:i:s", filemtime($fichier));
+        }
+        else
+            $this->filetime = "missing file";
+    }
+    else
+        $this->filetime = "";
+  }
 
   function setEcoutes($ecoutes) {
         $h = intval($this->time);
@@ -237,10 +257,14 @@ function load_podcasts($jsonDay, $date, $bdd) {
 	$url = "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 	$prefix_url = parse_url($url, PHP_URL_PATH);
 
+	
+	
 	setlocale (LC_TIME, 'fr_FR.utf8','fra'); 
-	date_default_timezone_set('Europe/Paris');
+        date_default_timezone_set('Europe/Paris');
 	get_date($date, $day, $month, $year);
+        date_default_timezone_set($timezone_server);
 
+	
 	$datex = explode('-',$date);
 
 
