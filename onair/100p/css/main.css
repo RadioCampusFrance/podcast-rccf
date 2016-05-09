@@ -54,19 +54,20 @@ footer {
 }
 
 .small-screen {
-    display: none;
+    display: none !important;
 }
 .large-screen {
     display: block;
 }
 
+
 @media screen and (max-width: 767px) {
-.small-screen {
-    display: block;
-}
-.large-screen {
-    display: none;
-}
+    .small-screen {
+        display: block !important;
+    }
+    .large-screen {
+        display: none;
+    }
 }
 
         .list-group-horizontal .list-group-item {
@@ -106,4 +107,10 @@ footer {
         width: 100px;
         color: #333;
         font-size: 70%;
+}
+
+.navbar-nav>li.selected {
+        padding-left: 15px;
+        color: #fff;
+        font-weight: bold;
 }

@@ -47,10 +47,24 @@
 	exit("Des problèmes techniques nous empêchent temporairement de vous proposer les 100%... Veuillez nous excuser pour la gêne occasionnée.");
 	}
 
+    function afficher_items_liste($selected_style) {
+        global $styles;
+        foreach($styles as $nb => $style) {
+            $real_style = $style;
+            if ($style == "")
+                $real_style = "tous";
+            if ($style == $selected_style) {
+                echo '<li class="small-screen selected style-'.$nb.'"><span class="circle-style">100%</span> '.$real_style.'</li>';
+            }
+            else {
+                echo '<li class="small-screen style-'.$nb.'"><a href="?style='.$style.'#my-player-anchor"><span class="circle-style">100%</span> '.$real_style.'</a></li>';
+            }
+        }
+    }
     
     function afficher_liste($selected_style, $supclass) {
         global $styles;
-        echo '<div class="menu-styles col-xs-12 col-sm-4 '.$supclass.'" id="sidebar">';
+        echo '<div class="menu-styles col-xs-12 col-sm-4 '.$supclass.'" id="sidebar-'.$supclass.'">';
         foreach($styles as $nb => $style) {
             $real_style = $style;
             if ($style == "")
@@ -262,6 +276,7 @@
             <li class="active"><a href="#">Écouter</a></li>
             <li><a href="http://www.campus-clermont.net/onair/podcast/player/">Les autres podcasts</a></li>
             <li><a href="http://campus-clermont.net">Radio Campus Clermont-Ferrand</a></li>
+            <?php afficher_items_liste($selected_style); ?>
           </ul>
         </div><!-- /.nav-collapse -->
       </div><!-- /.container -->
@@ -279,8 +294,6 @@
         </div>
         
         
-                <?php afficher_liste($selected_style, "small-screen"); ?>     
-
         <div class="col-xs-12 col-sm-4" id="my-player">
           <div id="my-player-anchor" style="margin-top: -50px; margin-bottom: 50px"></div>
           <div id="jquery_jplayer_1"></div>
