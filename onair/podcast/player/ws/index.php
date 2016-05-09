@@ -167,7 +167,7 @@ class Podcast {
 			LEFT JOIN drupal_field_data_field_photo as ph ON ph.entity_id = n.vid
 			LEFT JOIN drupal_file_managed as fm ON fm.fid = ph.field_photo_fid
 			WHERE n.type LIKE 'emission'";
-	  $jour = date('N', mktime(0,0,0,$month,$day,$yeary));
+	  $jour = date('N', mktime(0,0,0,$month,$day,$year));
 
 	    $sql .= " AND j.field_jour_value = {$jour}";
 
