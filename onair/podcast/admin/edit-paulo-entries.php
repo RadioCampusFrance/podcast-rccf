@@ -20,6 +20,9 @@
 
 <body>
     <h1>Édition des titres de Paulo</h1>
+    <p>Cette page permet de modifier les titres qui ont été programmés par Paulo/Airtime. Le service est expérimental, mais il permet notamment de mettre les titres des 100% lorsqu'ils sont programmés en un seul fichier mais contiennent plusieurs titres.</p>
+
+
 <?php
 
 function cmp($a, $b) {

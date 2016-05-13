@@ -361,6 +361,7 @@ if (var_action == "seturl")
 else
 if (var_action != "2paulo")
   url = url + "&tt=" + encodeURIComponent(var_title);
+
 $.ajax({
 			type: "GET",
 			async: false,
@@ -651,6 +652,7 @@ function launch_track(var_mp3, var_ok, var_time)
 			</div>
 			<div style="float: right; font-size: 80%"><a href="/onair/podcast/player/?date=<?php echo $date;?>" target="_blank">voir le player</a></div>
 			<div style="clear: both;float: right; font-size: 80%"><a href="/onair/podcast/admin/stats.php?date=<?php echo $date;?>&amp;period=month">voir les statistiques</a></div>
+			<div style="clear: both;float: right; font-size: 80%"><a href="/onair/podcast/admin/edit-paulo-entries.php?date=<?php echo $date;?>">modifier les titres de Paulo</a></div>
 
   <h2 style="clear:both">Réécoute des émission</h2>
   <div><p>Pour repérer rapidement si une émission n'a pas eu lieu, il suffit de repérer les jingles que Paulo diffuse, par exemple aux alentours de 15mn et 30mn de chaque heure...</p></div>
