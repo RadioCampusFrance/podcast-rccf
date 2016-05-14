@@ -4,7 +4,6 @@ include 'config.php';
 header("Content-Type: 'text/html'; charset=utf8");
 $data = RestUtils::processRequest();  
 
-
 try
 {	
 
@@ -31,6 +30,9 @@ try
 		case "seturl":
 			$resultatGlobal = setUrl();
 			break;
+                case "settime":
+                        $resultatGlobal = setTime();
+                        break;
 		default:
 			$resultatGlobal = '';
 			break;
@@ -101,6 +103,37 @@ function renameTitle() {
 	}
     }
   if ($resultat["action"] != "rename")
+      $resultat["error"] = "Impossible de trouver l'entrée correspondante a l'heure donnee";
+  return $resultat;
+}
+
+
+function setTime() {
+  $resultat = array();
+
+  $date = $_GET['d'];
+  $time = $_GET['t'];
+  $minsec = explode("-", $_GET['time']);
+  $min = $minsec[0];
+  $sec = $minsec[1];
+  
+  $jsonDay = get_json($date);
+
+  if (!$jsonDay) {
+    $resultat["error"] = "Impossible de trouver une description correspondante (" . $date . ")";
+    return $resultat;
+  }
+  if ($jsonDay->track)
+    foreach($jsonDay->track as $track) {
+      if (intval($track->time) == intval($time)) {
+	$track->timemin = $min;
+	$track->timesec = $sec;
+	save_json($date, $jsonDay);
+	$resultat["action"] = "settime";
+	break;
+	}
+    }
+  if ($resultat["action"] != "seturl")
       $resultat["error"] = "Impossible de trouver l'entrée correspondante a l'heure donnee";
   return $resultat;
 }

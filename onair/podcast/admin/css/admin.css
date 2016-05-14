@@ -56,3 +56,13 @@ body {
         clear: left;
         margin-left: 298px;
 }
+
+select {
+      width: 5em;
+}
+.midtime {
+        font-size: 130%;
+        padding: .2em;
+        margin-top: -.5em;
+        display: inline-block;
+}

@@ -67,6 +67,8 @@ class Podcast {
   var $title;
   var $available;
   var $url;
+  var $timesec;
+  var $timemin;
 
   function __construct() {
     $a = func_get_args(); 
@@ -81,6 +83,8 @@ class Podcast {
     $this->title = "Non défini";
     $this->available = 0;
     $this->url = "";
+    $this->timemin = "00";
+    $this->timesec = "00";
   }
 
   function __construct1($jsonEntry) {
@@ -88,6 +92,14 @@ class Podcast {
     $this->time = intval($jsonEntry->time);
     $titles = explode('|', $jsonEntry->title);
     $this->title = $jsonEntry->title;
+    if (isset($jsonEntry->timemin))
+        $this->timemin = $jsonEntry->timemin;
+    else
+        $this->timemin = "00";
+    if (isset($jsonEntry->timesec))
+        $this->timesec = $jsonEntry->timesec;
+    else
+        $this->timesec = "00";
     if (count($titles) == 1) {
       $this->titleItems = $jsonEntry->title;
     }
@@ -157,7 +169,8 @@ function get_json($date) {
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 <link rel="stylesheet" href="css/circle.player.css">
 <link rel="stylesheet" href="css/admin.css?date=<?php echo filemtime('css/admin.css');?>">
-<link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.4.custom.min.css">
+<!-- link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.10.4.custom.min.css" -->
+<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 <script type="text/javascript" src="js/jquery-1.10.2.js"></script>
 <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
 <script type="text/javascript" src="js/jquery.transform2d.js"></script>
@@ -165,7 +178,8 @@ function get_json($date) {
 <script type="text/javascript" src="js/jquery.ui.datepicker-fr.js"></script>
 <script type="text/javascript" src="js/mod.csstransforms.min.js"></script>
 <script type="text/javascript" src="js/circle.player.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
+<!-- script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script -->
+<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 <script>
 
 
@@ -265,6 +279,8 @@ $(document).ready(function(){
 	    $( "#dialog-paulo" ).dialog( "open" );
             var url = document.getElementById("url<?php echo $i; ?>");
             url.style.display = "none";
+            var locltime = document.getElementById('time<?php echo $i; ?>');
+            locltime.style.display = "none";
 
 	  }
 	});
@@ -279,8 +295,20 @@ $(document).ready(function(){
 
       $("#cancelurl<?php echo $i; ?>").button().click(function() {cancelEditUrl(<?php echo $i; ?>);});
 
+      $( "#time-sec-<?php echo $i; ?>" ).selectmenu({ change: function() {
+            var buttons = document.getElementById("buttonstime<?php echo $i; ?>");
+            buttons.style.display = "block";
+      }});   
+      $( "#time-min-<?php echo $i; ?>" ).selectmenu({ change: function() {
+            var buttons = document.getElementById("buttonstime<?php echo $i; ?>");
+            buttons.style.display = "block";
+      }});         
 
-<?php } ?>
+      $("#oktime<?php echo $i; ?>").button().click(function() {setTime(<?php echo $i; ?>);});
+
+      $("#canceltime<?php echo $i; ?>").button().click(function() {cancelEditTime(<?php echo $i; ?>);});
+
+      <?php } ?>
    $( "#dialog-fail" ).dialog({
       autoOpen: false,
       height:300,
@@ -354,7 +382,15 @@ $(document).ready(function(){
 
     window.prevTitle = [];
     window.prevUrl = [];
-    
+    window.prevMinTime = [];
+    window.prevSecTime = [];
+    <?php for ($i = 0; $i != 24; ++$i) 
+       if($podcasts[$i]) { ?>
+        window.prevSecTime[<?php echo $i; ?>] = "<?php echo $podcasts[$i]->timesec; ?>";
+        window.prevMinTime[<?php echo $i; ?>] = "<?php echo $podcasts[$i]->timemin; ?>";
+       <?php
+       }
+       ?>
 });
 
 function xmlRequestAdmin(var_action, var_time, var_title) {
@@ -363,9 +399,11 @@ var result = true;
 if (var_action == "seturl")
   url = url + "&u=" + encodeURIComponent(var_title);
 else
+if (var_action == "settime")
+  url = url + "&time=" + encodeURIComponent(var_title);
+else
 if (var_action != "2paulo")
   url = url + "&tt=" + encodeURIComponent(var_title);
-
 $.ajax({
 			type: "GET",
 			async: false,
@@ -495,8 +533,32 @@ function setTrackOn(var_time) {
     title.blur();
     var url = document.getElementById('url' + var_time);
     url.style.display = "block";
+    var time = document.getElementById('time' + var_time);
+    time.style.display = "block";
   }
 }
+
+function cancelEditTime(var_time) {
+    $("#time-min-" + var_time).val(window.prevMinTime[var_time]);
+    $("#time-min-" + var_time).selectmenu("refresh");
+    $("#time-sec-" + var_time).val(window.prevSecTime[var_time]);
+    $("#time-sec-" + var_time).selectmenu("refresh");
+    setVisibleValidationTime(var_time, false);
+}
+
+function setTime(var_time) {
+   var sec = document.getElementById("time-sec-" + var_time);
+   var min = document.getElementById("time-min-" + var_time);
+
+   success = xmlRequestAdmin("settime", var_time, min.value + "-" + sec.value);
+
+  if (success) {
+    setVisibleValidationTime(var_time, false);
+    prevMinTime[var_time] = min.value;
+    prevSecTime[var_time] = sec.value;
+  }
+}
+
 
 function cancelEditTitle(var_time) {
   var title = document.getElementById("title" + var_time);
@@ -514,6 +576,15 @@ function cancelEditTitle(var_time) {
 function setVisibleValidationUrl(var_time, var_visible) {
   // rendre visible les boutons de validation si nécessaire
   var buttons = document.getElementById("buttonsurl" + var_time);
+  if (var_visible)
+    buttons.style.display = "block";
+  else
+    buttons.style.display = "none";
+}
+
+function setVisibleValidationTime(var_time, var_visible) {
+  // rendre visible les boutons de validation si nécessaire
+  var buttons = document.getElementById("buttonstime" + var_time);
   if (var_visible)
     buttons.style.display = "block";
   else
@@ -606,7 +677,7 @@ function launch_track(var_mp3, var_ok, var_time)
 		  predhour.style.backgroundColor="#fff";
 		  }
 		window.activeTime = var_time;
-
+		
 		$("#jquery_jplayer_1").jPlayer("clearMedia");
 		
 		if (var_ok == "OK") {
@@ -619,8 +690,17 @@ function launch_track(var_mp3, var_ok, var_time)
 			mp3: "../KO/" + var_mp3,
 		    });
 		}
+		
+		if (window.prevSecTime[var_time])
+                    sec = parseInt(window.prevSecTime[var_time]);
+                else
+                    sec = 0;
+		if (window.prevMinTime[var_time])
+                    min = parseInt(window.prevMinTime[var_time]);
+                else
+                    min = 0;
 
-		$("#jquery_jplayer_1").jPlayer("play");
+		$("#jquery_jplayer_1").jPlayer("play", min * 60 + sec);
 
 		var hour = document.getElementById("heure" + var_time);
 		hour.style.backgroundColor="#ddd";
@@ -755,6 +835,49 @@ function launch_track(var_mp3, var_ok, var_time)
       <div id="buttonsurl<?php echo $i; ?>" style="display: none">
     <?php if($podcasts[$i]) { ?>
       <button id="okurl<?php echo $i; ?>">Valider</button><button id="cancelurl<?php echo $i; ?>">Annuler</button>
+    <?php } ?></div>
+    </div>
+    <div class="colonne third col-newline">
+    <?php if($podcasts[$i]) { ?>
+      <div id="time<?php echo $i; ?>" <?php 
+    if ($podcasts[$i]->available == 0) { 
+	echo ' style="display: none"';
+    } ?>>
+        <select id="time-min-<?php echo $i; ?>">
+            <?php for($it = 0; $it != 60; ++$it) {
+                if ($it <= 9)
+                    $ii = '0'.$it;
+                else
+                    $ii = $it;
+                echo "<option value=\"".$ii."\"";
+                if ($ii == $podcasts[$i]->timemin) {
+                    echo " selected";
+                }
+                echo ">".$ii."</option>";
+            }
+            ?>
+        </select> <span class="midtime">:</span> 
+        <select id="time-sec-<?php echo $i; ?>">
+            <?php for($it = 0; $it != 60; ++$it) {
+                if ($it <= 9)
+                    $ii = '0'.$it;
+                else
+                    $ii = $it;
+                echo "<option value=\"".$ii."\"";
+                if ($ii == $podcasts[$i]->timesec) {
+                    echo " selected";
+                }
+                echo ">".$ii."</option>";
+            }
+            ?>
+        </select>        
+        </div>
+    <?php } ?>
+    </div>
+    <div class="colonne col-buttons">
+      <div id="buttonstime<?php echo $i; ?>" style="display: none">
+    <?php if($podcasts[$i]) { ?>
+      <button id="oktime<?php echo $i; ?>">Valider</button><button id="canceltime<?php echo $i; ?>">Annuler</button>
     <?php } ?></div>
     </div>
   <?php
