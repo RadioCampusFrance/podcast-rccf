@@ -43,7 +43,7 @@ body {
 .third {
   width: 340px;
 }
-.last {
+.col-buttons {
   width: 180px;
 }
 
@@ -52,7 +52,7 @@ body {
   height: 15px;
 }
 
-.url {
+.col-newline {
         clear: left;
         margin-left: 298px;
 }

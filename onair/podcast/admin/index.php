@@ -737,13 +737,13 @@ function launch_track(var_mp3, var_ok, var_time)
     } ?>/>
     <?php } ?>
     </div>
-    <div class="colonne last">
+    <div class="colonne col-buttons">
       <div id="buttons<?php echo $i; ?>" style="display: none">
     <?php if($podcasts[$i]) { ?>
       <button id="ok<?php echo $i; ?>">Valider</button><button id="cancel<?php echo $i; ?>">Annuler</button>
     <?php } ?></div>
     </div>
-    <div class="colonne third url">
+    <div class="colonne third col-newline">
     <?php if($podcasts[$i]) { ?>
       <input id="url<?php echo $i; ?>" type="text" value="<?php echo $podcasts[$i]->url; ?>" <?php 
     if ($podcasts[$i]->available == 0) { 
@@ -751,7 +751,7 @@ function launch_track(var_mp3, var_ok, var_time)
     } ?>/>
     <?php } ?>
     </div>
-    <div class="colonne last">
+    <div class="colonne col-buttons">
       <div id="buttonsurl<?php echo $i; ?>" style="display: none">
     <?php if($podcasts[$i]) { ?>
       <button id="okurl<?php echo $i; ?>">Valider</button><button id="cancelurl<?php echo $i; ?>">Annuler</button>
