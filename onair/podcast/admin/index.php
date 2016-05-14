@@ -260,7 +260,6 @@ $(document).ready(function(){
 	    title.style.display = "block";
 	    setVisibleValidation(<?php echo $i; ?>, true);
 	    $("#title" + <?php echo $i; ?>).focus();
-	    window.stateEntries[<?php echo $i;?>] = 1;
 	  }
 	  else if ($( "#radio<?php echo $i; ?>-3" ).is(':checked')) {
 	    $( "#dialog-paulo" ).dialog( "open" );
@@ -271,10 +270,7 @@ $(document).ready(function(){
 	});
 
       $("#ok<?php echo $i; ?>").button().click(function() {
-        setTrackOn(<?php echo $i; ?>);
-        var url = document.getElementById("url<?php echo $i; ?>");
-        url.style.display = "block";
-        
+        setTrackOn(<?php echo $i; ?>);        
       });
 
       $("#cancel<?php echo $i; ?>").button().click(function() {cancelEditTitle(<?php echo $i; ?>);});
@@ -492,9 +488,13 @@ function setTrackOn(var_time) {
   if (success) {
     setVisibleValidation(var_time, false);
     if (window.futureState[var_time] != 0) {
+      window.stateEntries[var_time] = window.futureState[var_time];
       window.futureState[var_time] = 0;
+
     }
     title.blur();
+    var url = document.getElementById('url' + var_time);
+    url.style.display = "block";
   }
 }
 
@@ -588,7 +588,7 @@ function resetActiveItem(var_item) {
 	    $( "#radio" + window.setActiveItem + "-1").blur();
 	    $( "#radio" + window.setActiveItem + "-2" ).prop("checked", true).button("refresh");
       }
-      else if (window.stateEntries[var_item] == 2) {
+      else if (window.stateEntries[var_item] == 3) {
 	    $( "#radio" + window.setActiveItem + "-1").blur();
 	    $( "#radio" + window.setActiveItem + "-2").blur();
 	    $( "#radio" + window.setActiveItem + "-3" ).prop("checked", true).button("refresh");
