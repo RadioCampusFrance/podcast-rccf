@@ -37,6 +37,7 @@ body {
 .second {
   width: 180px;
   text-align: center;
+  margin-left: -20px;
 }
 
 .third {
@@ -49,4 +50,9 @@ body {
 #time {
   text-align: center;
   height: 15px;
+}
+
+.url {
+        clear: left;
+        margin-left: 298px;
 }

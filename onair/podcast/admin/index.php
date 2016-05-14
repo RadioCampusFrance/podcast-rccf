@@ -743,7 +743,7 @@ function launch_track(var_mp3, var_ok, var_time)
       <button id="ok<?php echo $i; ?>">Valider</button><button id="cancel<?php echo $i; ?>">Annuler</button>
     <?php } ?></div>
     </div>
-    <div class="colonne third">
+    <div class="colonne third url">
     <?php if($podcasts[$i]) { ?>
       <input id="url<?php echo $i; ?>" type="text" value="<?php echo $podcasts[$i]->url; ?>" <?php 
     if ($podcasts[$i]->available == 0) { 
