@@ -264,10 +264,18 @@ $(document).ready(function(){
 	  }
 	  else if ($( "#radio<?php echo $i; ?>-3" ).is(':checked')) {
 	    $( "#dialog-paulo" ).dialog( "open" );
+            var url = document.getElementById("url<?php echo $i; ?>");
+            url.style.display = "none";
+
 	  }
 	});
 
-      $("#ok<?php echo $i; ?>").button().click(function() {setTrackOn(<?php echo $i; ?>);});
+      $("#ok<?php echo $i; ?>").button().click(function() {
+        setTrackOn(<?php echo $i; ?>);
+        var url = document.getElementById("url<?php echo $i; ?>");
+        url.style.display = "block";
+        
+      });
 
       $("#cancel<?php echo $i; ?>").button().click(function() {cancelEditTitle(<?php echo $i; ?>);});
 
