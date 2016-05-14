@@ -56,6 +56,8 @@ class Podcast {
   var $podcastable;
   var $image;
   var $ecoutes;
+  var $timesec;
+  var $timemin;
 
 
   function __construct($array_from_ws) {
@@ -82,6 +84,14 @@ class Podcast {
     $this->podcastable = $array_from_ws->podcastable;
     $this->image = $array_from_ws->image;
     $this->ecoutes = $array_from_ws->ecoutes;
+    if (isset($array_from_ws->timemin))
+        $this->timemin = $array_from_ws->timemin;
+    else
+        $this->timemin = "00";
+    if (isset($array_from_ws->timesec))
+        $this->timesec = $array_from_ws->timesec;
+    else
+        $this->timesec = "00";
   }
 
   static function emptyToItem($hour) {
@@ -206,9 +216,10 @@ class Podcast {
 	  $podcasts = json_decode(file_get_contents("http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/?date=" . $date));
 	  // conversion to object
 	  $result = array();
-          foreach($podcasts as &$podcast) {
-            $result[$podcast->time] = new Podcast($podcast);
-          }
+	  if (count($podcasts) != 0)
+            foreach($podcasts as &$podcast) {
+                $result[$podcast->time] = new Podcast($podcast);
+            }
           return $result;
 	}
 	
@@ -431,6 +442,17 @@ $(document).ready(function(){
 
 } ?> 
 	precharger_image("images/chargement.gif");
+	
+    window.minTime = [];
+    window.secTime = [];
+    <?php for ($i = 0; $i != 24; ++$i) 
+       if($podcasts[$i]) { ?>
+        window.secTime[<?php echo $i; ?>] = "<?php echo $podcasts[$i]->timesec; ?>";
+        window.minTime[<?php echo $i; ?>] = "<?php echo $podcasts[$i]->timemin; ?>";
+       <?php
+       }
+       ?>
+
 
 });
 
@@ -808,8 +830,17 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 
 		window.logged[var_time] = true;
 		
-		if (var_play) {
-		  $("#jquery_jplayer_1").jPlayer("play");
+                if (var_play) {
+                    if (window.secTime[var_time])
+                        sec = parseInt(window.secTime[var_time]);
+                    else
+                        sec = 0;
+                    if (window.minTime[var_time])
+                        min = parseInt(window.minTime[var_time]);
+                    else
+                        min = 0;
+
+                    $("#jquery_jplayer_1").jPlayer("play", min * 60 + sec);
 		}
 		
 		document.title = var_title + ' - Radio Campus, <?php echo $fulldate;?>, '+var_time+'h';
@@ -1516,7 +1547,8 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
   <p>Radio Campus Clermont-Ferrand - 16 rue Degeorges 63000 Clermont-Ferrand <br />
     tél: 04.73.140.158 - fax: 04.73.902.877 - mail: <a href="mailto:antenne@clermont.radiocampus.org">antenne@clermont.radiocampus.org</a><br />
     <a href="/mentions-legales.html">mentions légales</a></p>
-  <p style="text-align: right;"><a href="/onair/podcast/admin/?date=<?php echo $date; ?>" style="text-decoration: none; color: #888;">administration</a></p>
+  <p style="text-align: right;">Sauf mention contraire, les podcasts proposés en écoute et téléchargement sur cette page sont la propriété de Radio Campus et de l'équipe ayant réalisé l'émission correspondante.<br />
+  <a href="/onair/podcast/admin/?date=<?php echo $date; ?>" style="text-decoration: none; color: #888;">administration</a></p>
  </div>
 </div>
 </body>

@@ -114,7 +114,8 @@ class Podcast {
   var $podcastable;
   var $image;
   var $ecoutes;
-
+  var $timesec;
+  var $timemin;
 
   function __construct() {
     $a = func_get_args(); 
@@ -152,6 +153,15 @@ class Podcast {
     $this->podcastable = $jsonEntry->podcastable;
     $this->loadImage($date, $bdd);
     
+    if (isset($jsonEntry->timemin))
+        $this->timemin = $jsonEntry->timemin;
+    else
+        $this->timemin = "00";
+    if (isset($jsonEntry->timesec))
+        $this->timesec = $jsonEntry->timesec;
+    else
+        $this->timesec = "00";
+        
     $this->setFileTime($date);
   }
   
