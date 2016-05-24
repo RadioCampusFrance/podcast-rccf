@@ -63,6 +63,7 @@ class Podcast {
   function __construct($array_from_ws) {
      $this->mp3 = $array_from_ws->mp3;
      $this->time = $array_from_ws->time;
+
      $this->title = $array_from_ws->title;
      $titles = explode('|', $this->title);
      if (count($titles) == 1) {
@@ -343,6 +344,7 @@ $(document).ready(function(){
       window.entryOpen = [];
       window.loadedSimilaires = [];
       window.pImages = [];
+      window.firstcanplay = false;
       
       $('#submit').click(function(){
       $.post("send.php", $("#mycontactform").serialize() + "&url=" + encodeURIComponent(window.location.href),  function(response) {
@@ -367,11 +369,11 @@ $(document).ready(function(){
 	    else if (isset($podcasts[$i]) && isset($podcasts[$i]->image) && $podcasts[$i]->image != "")
 	      	      echo "window.pImages[".$podcasts[$i]->time."] = '".addslashes($podcasts[$i]->image) ."';";
 
-	if ($time || isset($actionRecent)) {
+	if ($time != "" || isset($actionRecent)) {
 		if (isset($podcasts[$time])) {
 		  if ($podcasts[$time]->ok) {
-		    if (!isset($actionRecent))
-		      $podcasts[$time]->toLaunchTrack($date, false);
+		    //if (!isset($actionRecent))
+		    //  $podcasts[$time]->toLaunchTrack($date, false);
 		  }
 		  else {
 		      $podcasts[$time]->toDisplayEntries(false);
@@ -382,26 +384,38 @@ $(document).ready(function(){
 	?>
 		var showTimeLeft = function(event) {
 			if (!window.live) {
-			  var time = event.jPlayer.status.currentTime;
-			  var timeDisplay = window.activeTime+":"+$.jPlayer.convertTime(time);
-			  var myDiv = document.getElementById("time");
-			  myDiv.innerHTML = timeDisplay;
+                         var myDiv = document.getElementById("time");
+			 if(window.activeTime != undefined) {
+                            var time = event.jPlayer.status.currentTime;
+			  
+                            var timeDisplay = window.activeTime+":"+$.jPlayer.convertTime(time);
+                            var myDiv = document.getElementById("time");
+                            myDiv.innerHTML = timeDisplay;
+                         }
+                         else {
+                            myDiv.innerHTML = "";
+                         }
 			}
 		};
-	<?php    if ($time) {
+	<?php    if ($time != "") {
 		if (isset($podcasts[$time]) && $podcasts[$time]->ok) {
 		  echo 'window.var_time_string = "'.$time.'";';
 		}
 		} ?>
 	myCirclePlayer = new CirclePlayer("#jquery_jplayer_1",
 	{
-		<?php    if ($time) {
+		<?php    if ($time != "") {
 		if (isset($podcasts[$time]) && $podcasts[$time]->ok) {
-        		echo 'mp3: "../OK/'.$date.'/'.$date.'-'.$time.'00.mp3",'; 
+                        if ($time < 10)
+                            echo 'mp3: "../OK/'.$date.'/'.$date.'-0'.$time.'00.mp3",'; 
+                        else
+                            echo 'mp3: "../OK/'.$date.'/'.$date.'-'.$time.'00.mp3",'; 
+
 	  } }
 		    else {
 		      if (isset($actionLive)) {
 			echo 'mp3: "http://campus.abeille.com:8000/campus",';
+			//echo 'mp3: "http://imperatorium.org:8000/campus",';
 		      }
 		  }
 		?>
@@ -415,13 +429,26 @@ $(document).ready(function(){
 		preload: "auto",
 		wmode: "window",
 <?php if (isset($actionLive)) { ?>
-		ready: function (event) {
-			play_live(true, true);
+		canplay: function (event) {
+                        if (!window.firstcanplay) {
+                            play_live(true, true);
+                            window.firstcanplay = true;
+                        }
+                        
 		},
-<?php } ?>
-		keyEnabled: true
+<?php }
+else if ($time != "" && (isset($podcasts[$time]) && $podcasts[$time]->ok)) {
+                    echo "canplay: function (event) { ";
+                        echo "if (!window.firstcanplay) {";
+                        $podcasts[$time]->toLaunchTrack($date, true, true);
+                        echo ";window.firstcanplay = true; }";
+                    echo ";},"; 
+                    }
+?>
 	});
-	
+
+	        		
+
 	jQuery('#jquery_jplayer_1').bind(jQuery.jPlayer.event.play, function(event) { 
 		  if (event.jPlayer.status.paused===false) {
 		  if (window.var_time_string != "-1") {
@@ -436,6 +463,7 @@ $(document).ready(function(){
 		    }}
 		  });
 
+	
 <?php if (isset($actionSearch)) { 
       echo "open_search();";
       echo "rechercher(false);";
@@ -764,7 +792,6 @@ function display_downloads(var_time) {
 
 function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 	{	
-
 		if (window.activeTime == var_time) {
 		  if ($("#jquery_jplayer_1").data().jPlayer.status.paused == false)
 		    $("#jquery_jplayer_1").jPlayer("pause");
@@ -809,7 +836,7 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		if (var_play)
 		  window.history.pushState({ state: 'play', mp3: var_mp3,  title: var_title, time: var_time, url: var_url}, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
 
-		$("#jquery_jplayer_1").jPlayer("clearMedia");
+		//$("#jquery_jplayer_1").jPlayer("clearMedia");
 		
 		var complement = "";
 		if (window.logged[var_time] !== undefined) {
@@ -820,17 +847,9 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		  window.var_time_string = "0" + var_time;
 		else
 		  window.var_time_string = var_time;
-		$("#jquery_jplayer_1").jPlayer("setMedia", { 
-			mp3: "../OK/<?php echo $date; ?>/<?php echo $date; ?>-" + var_time_string + "00.mp3",
-		});
-		jQuery('#jquery_jplayer_1').bind(jQuery.jPlayer.event.ended +'.jp-repeat', function() { 
-		  display_similaires(var_time, var_title);
-		  });
-
-
-		window.logged[var_time] = true;
-		
-                if (var_play) {
+		  
+		  
+                  if (var_play) {
                     if (window.secTime[var_time])
                         sec = parseInt(window.secTime[var_time]);
                     else
@@ -839,9 +858,26 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
                         min = parseInt(window.minTime[var_time]);
                     else
                         min = 0;
+                    start = min * 60 + sec;
+                    $("#jquery_jplayer_1").jPlayer("setMedia", { 
+			mp3: "../OK/<?php echo $date; ?>/<?php echo $date; ?>-" + var_time_string + "00.mp3",
+		}).jPlayer("play", start);
+                }
+                else {
+                		$("#jquery_jplayer_1").jPlayer("setMedia", { 
+			mp3: "../OK/<?php echo $date; ?>/<?php echo $date; ?>-" + var_time_string + "00.mp3",
+		});
+                }
 
-                    $("#jquery_jplayer_1").jPlayer("play", min * 60 + sec);
-		}
+                
+		
+		jQuery('#jquery_jplayer_1').bind(jQuery.jPlayer.event.ended +'.jp-repeat', function() { 
+		  display_similaires(var_time, var_title);
+		  });
+
+
+		window.logged[var_time] = true;
+		
 		
 		document.title = var_title + ' - Radio Campus, <?php echo $fulldate;?>, '+var_time+'h';
 		
@@ -925,6 +961,7 @@ function play_live(var_start, var_history)
 
 		var myDiv = document.getElementById("ecoutes_of_podcast");
 		myDiv.innerHTML = "<span class=\"small\">en cas de problème, <a href=\"http://campus.abeille.com:8000/campus\">ouvrir directement le flux</a></span>";
+		//myDiv.innerHTML = "<span class=\"small\">en cas de problème, <a href=\"http://imperatorium.org:8000/campus\">ouvrir directement le flux</a></span>";
 
     ;
 
@@ -935,19 +972,27 @@ function play_live(var_start, var_history)
 		  window.history.pushState({ state: 'direct' }, 'Radio Campus en direct', '<?php echo $prefix_url;?>?live=true');
 
 
-		$("#jquery_jplayer_1").jPlayer("clearMedia");
+		//$("#jquery_jplayer_1").jPlayer("clearMedia");
 		
-		$("#jquery_jplayer_1").jPlayer("setMedia", { 
-			title: "Radio Campus live",
-			mp3: "http://campus.abeille.com:8000/campus",
-		});
+		if (var_start) {
+                    $("#jquery_jplayer_1").jPlayer("setMedia", { 
+                            title: "Radio Campus live",
+                            mp3: "http://campus.abeille.com:8000/campus",
+                            //mp3: "http://imperatorium.org:8000/campus",
+                    }).jPlayer("play");
+		}
+		else {
+                    $("#jquery_jplayer_1").jPlayer("setMedia", { 
+                            title: "Radio Campus live",
+                            mp3: "http://campus.abeille.com:8000/campus",
+                            //mp3: "http://imperatorium.org:8000/campus",
+                    });
+		}
 		jQuery('#jquery_jplayer_1').bind(jQuery.jPlayer.event.ended +'.jp-repeat', function() { 
 		  false;
 		  });
 
 		
-		if (var_start)
-		  $("#jquery_jplayer_1").jPlayer("play");
 
 		if (window.interval == undefined)
 		  clearInterval(window.interval);
@@ -1301,7 +1346,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			</div>
 
 			<div id="campus_player" <?php 
-  if (!isset($time) || !$time || $time == "") {
+  if (!isset($time) || $time == "") {
       echo 'class="hidden"';
       }; ?>>
 				<div id="cp_container_1" class="cp-container">
@@ -1319,7 +1364,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 					<div class="cp-circle-control" id="main-control"></div>
 					<ul class="cp-controls" id="main-play">
 						<li><a class="cp-play" tabindex="1">play</a></li>
-						<li><a class="cp-pause" style="display:none;" tabindex="1">pause</a></li> <!-- Needs the inline style here, or jQuery.show() uses display:inline instead of display:block -->
+						<li><a class="cp-pause" style="display:none;" tabindex="1">pause</a></li> 
 					</ul>
 				</div>
 			</div>
@@ -1341,7 +1386,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			<div id="dl_similaires">
 			</div>
 			<div id="similaires_box" class="popupBox">
-			      <div class="close" onclick="clear_similaires_box()">X</div>
+			      <div class="close" onClick="clear_similaires_box()">X</div>
 			      <h2><span>Émissions similaires</span></h2>
 			      <div id="similaire_box_scroll" class="fenetre-scroll">
 			      <div id="similaire_results" class="fenetre-contenu">
@@ -1353,7 +1398,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
   for($i = 0; $i != 24; $i++) {
     if (isset($podcasts[$i]) && !$podcasts[$i]->ok)  { ?>
       <div id="titres_musique<?php echo $i;?>" class="titres_musicaux fenetre">
-      <div class="close" onclick="clear_previous()">X</div>
+      <div class="close" onClick="clear_previous()">X</div>
       <h2><span>Programmation musicale - <span id="titres_musique<?php echo $i;?>_title"></span></span></h2>
       <div class="scrollregion fenetre-scroll" id="titres_musique<?php echo $i;?>_scroll" ><?php 
 	$podcasts[$i]->toMusicEntries();
@@ -1363,17 +1408,17 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 ?>		      
 			</div>
 			<div id="searchBox" <?php if (!isset($actionSearch)) { echo 'class="hidden"'; }?> >
-			  <div class="close" onclick="clear_previous()">X</div>
+			  <div class="close" onClick="clear_previous()">X</div>
 			  <h2><span>Rechercher un podcast</span></h2>
 			  <div class="scrollregion fenetre-scroll" id="searchBox_scroll">
-				<input type="text" name="recherche" id="champsRecherche" value="<?php echo $actionSearch; ?>" onkeypress="pressSearch(event)" />
-			    <div class="buttonRechercher" onclick="rechercher(true)">Rechercher</div>
+				<input type="text" name="recherche" id="champsRecherche" value="<?php echo $actionSearch; ?>" onKeyPress="pressSearch(event)" />
+			    <div class="buttonRechercher" onClick="rechercher(true)">Rechercher</div>
 			    <div id="results">
 			    </div>
 			  </div>
 			</div>
 			<div id="rssBox" class="hidden" >
-			  <div class="close" onclick="clear_previous()">X</div>
+			  <div class="close" onClick="clear_previous()">X</div>
 			  <h2><span>Les flux RSS des podcasts</span></h2>
 			  <div class="fenetre-scroll">
 			    <p><a style="margin-right: 10px" href="/onair/podcast/player/rss/" target="_blank" title="Les derniers podcasts"><img src="images/rss-small.png" alt="flux rss"/></a> le flux RSS de tous les podcasts</p>
@@ -1388,7 +1433,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			    </div>
 			  </div>		
 			<div id="agendaBox" class="hidden" >
-			  <div class="close" onclick="clear_previous()">X</div>
+			  <div class="close" onClick="clear_previous()">X</div>
 			  <h2><span>Changer de jour</span></h2>
 			    <div class="fenetre-scroll"><div id="datepicker"></div>
 				  <div id="godate" title="Aller au jour sélectionné">Aller au jour</div>
@@ -1396,7 +1441,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			    </div>
 			  </div>
 			<div id="contactBox" class="hidden" >
-			  <div class="close" onclick="clear_previous()">X</div>
+			  <div class="close" onClick="clear_previous()">X</div>
 			  <h2><span>Signaler un problème</span></h2>
 			    <div class="fenetre-scroll">
 			    <p>Utiliser le formulaire ci-dessous pour signaler un problème de fonctionnement du podcast, ou envoyer un courrier à <a href="mailto:webmaster@clermont.radio-campus.org">webmaster@clermont.radio-campus.org</a>.</p>
@@ -1513,9 +1558,9 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 <div id="gpluswrapper"><div class="g-plusone" data-size="medium"></div></div>
 </div>
 <div id="wrapper-tools">
-  <a id="buttonRSS" class="button" title="S'abonner aux podcasts de Radio Campus Clermont-Ferrand" onclick="open_rss()" alt="S'abonner (RSS)"> </a>
-  <p id="buttonSearch" class="button" title="Rechercher" onclick="open_search()" alt="rechercher"></p>
-  <p id="buttonAgenda" class="button" title="Choisir un jour" onclick="open_agenda()" alt="choisir un jour"></p>
+  <a id="buttonRSS" class="button" title="S'abonner aux podcasts de Radio Campus Clermont-Ferrand" onClick="open_rss()" alt="S'abonner (RSS)"> </a>
+  <p id="buttonSearch" class="button" title="Rechercher" onClick="open_search()" alt="rechercher"></p>
+  <p id="buttonAgenda" class="button" title="Choisir un jour" onClick="open_agenda()" alt="choisir un jour"></p>
   <a id="buttonDirect" class="button" href="/onair/podcast/player/?live=true" title="Aller au direct" alt="Aller au direct">direct</a>
   </div>
  <div id="menu-pied">
@@ -1535,11 +1580,11 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
   <div class="colonne">
  <h3>Le podcast</h3>
   <ul>
-     <li><a onclick="open_rss()" href="#rssBox">S'abonner aux podcasts (RSS)</a></li>
-     <li><a onclick="open_search()" href="#searchBox">rechercher un podcast...</a></li>
-     <li><a onclick="open_agenda()" href="#agendaBox">changer de jour...</a></li>
+     <li><a onClick="open_rss()" href="#rssBox">S'abonner aux podcasts (RSS)</a></li>
+     <li><a onClick="open_search()" href="#searchBox">rechercher un podcast...</a></li>
+     <li><a onClick="open_agenda()" href="#agendaBox">changer de jour...</a></li>
      <li><a href="/onair/podcast/player/?live=true">écouter le direct</a></li>
-     <li><a onclick="open_contact()" href="#contactBox">signaler un problème...</a></li>
+     <li><a onClick="open_contact()" href="#contactBox">signaler un problème...</a></li>
   </ul>
   </div>
  </div>
