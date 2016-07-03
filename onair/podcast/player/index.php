@@ -16,6 +16,17 @@ function get_time(&$time) {
     $time = "";
 }
 
+function get_minsec(&$minsec, $desc) {
+  $minsec = $_GET[$desc];
+  if (!ctype_digit($minsec) || ($minsec < 0) || ($minsec > 60)) {
+    $minsec = "";
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
 function get_current_date(&$date, &$day, &$month, &$year) {
   $date = date ("Y-m-d");
   $day = date("d");
@@ -245,6 +256,10 @@ class Podcast {
 	date_default_timezone_set('Europe/Paris');
 	get_date($date, $day, $month, $year);
 	get_time($time);
+	
+	if (get_minsec($initial_min, "min")) {
+            $minsec_first = get_minsec($initial_sec, "sec");
+	}
 
 	$datex = explode('-',$date);
 	$datprev = date ("Y-m-d", mktime (0,0,0,$datex[1],$datex[2]-1,$datex[0]));
@@ -380,6 +395,14 @@ $(document).ready(function(){
 		  }
 		    echo ";";
 	    }
+            if ($minsec_first) {
+                echo "window.minsec_first = true;";
+                echo "window.initial_min = ".$initial_min.";";
+                echo "window.initial_sec = ".$initial_sec.";";
+            }
+            else 
+                echo "minsec_first = false;";
+            
       }
 	?>
 		var showTimeLeft = function(event) {
@@ -833,8 +856,7 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		var myDiv = document.getElementById("ecoutes_of_podcast");
 		myDiv.innerHTML = display_downloads(var_time);
 		
-		if (var_play)
-		  window.history.pushState({ state: 'play', mp3: var_mp3,  title: var_title, time: var_time, url: var_url}, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
+
 
 		//$("#jquery_jplayer_1").jPlayer("clearMedia");
 		
@@ -848,13 +870,21 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		else
 		  window.var_time_string = var_time;
 		  
-		  
+		  setexacturl = false;
                   if (var_play) {
-                    if (window.secTime[var_time])
+                    if (window.minsec_first) {
+                        sec = window.initial_sec;
+                    }
+                    else if (window.secTime[var_time])
                         sec = parseInt(window.secTime[var_time]);
                     else
                         sec = 0;
-                    if (window.minTime[var_time])
+                    if (window.minsec_first) {
+                        min = window.initial_min;
+                        window.minsec_first = false;
+                        setexacturl = true;
+                    }
+                    else if (window.minTime[var_time])
                         min = parseInt(window.minTime[var_time]);
                     else
                         min = 0;
@@ -869,7 +899,14 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		});
                 }
 
-                
+                if (setexacturl) {
+                    var complement = "&min="+min+"&sec="+sec;
+                }
+                else
+                    var complement = "";
+                if (var_play) {
+		  window.history.pushState({ state: 'play', mp3: var_mp3,  title: var_title, time: var_time, url: var_url}, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time+complement);
+                }
 		
 		jQuery('#jquery_jplayer_1').bind(jQuery.jPlayer.event.ended +'.jp-repeat', function() { 
 		  display_similaires(var_time, var_title);
@@ -881,7 +918,7 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		
 		document.title = var_title + ' - Radio Campus, <?php echo $fulldate;?>, '+var_time+'h';
 		
-		update_reseaux_sociaux('http://<?php echo $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
+		update_reseaux_sociaux('http://<?php echo $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time+complement);
 		add_telecharger(var_time);
 		add_similaire(var_time, var_title);
 		add_image(var_title, var_time, <?php echo $datex[0];?>, <?php echo $datex[1];?>, <?php echo $datex[2]; ?>, false);
