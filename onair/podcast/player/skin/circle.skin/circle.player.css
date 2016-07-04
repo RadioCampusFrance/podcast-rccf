@@ -239,7 +239,7 @@ body {
 #hour_of_podcast {
 	font-size: 15pt;
 	text-align:center;
-	width: 50%;
+	width: 20%;
 	height: 1em;
 	top: 100px;
 	position: absolute;
@@ -309,9 +309,26 @@ body {
 
 
 #time {
-  margin-top: -5px;
+  cursor: pointer;
+  z-index: 17;
+  position: relative;
 }
 
+#time:hover {
+    color: #333;
+    
+}
+#time:hover:after {
+    content: "url";
+    background: #1692ae;
+    color: #fff;
+    padding: 5px;
+    margin-left: 5px;
+    font-size: 70%;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
 
 
 #tracklist li {

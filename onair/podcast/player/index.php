@@ -413,7 +413,7 @@ $(document).ready(function(){
 			  
                             var timeDisplay = window.activeTime+":"+$.jPlayer.convertTime(time);
                             var myDiv = document.getElementById("time");
-                            myDiv.innerHTML = timeDisplay;
+                            myDiv.innerHTML = "<span onclick=\"set_urltime("+window.activeTime+", "+parseInt(time/60)+", "+parseInt(time%60)+")\">"+timeDisplay+"</span>";
                          }
                          else {
                             myDiv.innerHTML = "";
@@ -521,6 +521,10 @@ $(window).on("popstate", function () {
     } 
   }
 });
+
+function set_urltime(var_time, var_min, var_sec) {
+    window.history.pushState({ state: 'play', time: var_time, min: min, sec: sec }, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time+"&min="+var_min+"&sec="+var_sec);
+}
 
 function add_telecharger(var_time) {
 	var myDiv = document.getElementById("dl_podcast");
