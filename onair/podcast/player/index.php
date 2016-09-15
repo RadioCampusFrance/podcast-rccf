@@ -3,6 +3,7 @@
 <head>
 <meta charset=utf-8 />
 
+<meta name="viewport" content="width=device-width" />
 <link rel="icon" type="image/png" href="favicon.ico" />
 <?php
 
@@ -308,7 +309,7 @@ else if (isset($actionLive)) { ?>
 <?php } ?>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
-<link rel="stylesheet" href="skin/circle.skin/circle.player.css?date=<?php echo filemtime('skin/circle.skin/circle.player.css');?>" />
+<link rel="stylesheet" media="screen" href="skin/circle.skin/circle.player.css?date=<?php echo filemtime('skin/circle.skin/circle.player.css');?>" />
 <link rel="stylesheet" href="skin/circle.skin/jquery.mCustomScrollbar.css" />
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
@@ -817,6 +818,11 @@ function display_downloads(var_time) {
   }
 }
 
+
+function jump(h) {
+    document.getElementById(h).scrollIntoView(true);
+}
+
 function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 	{	
 		if (window.activeTime == var_time) {
@@ -909,7 +915,8 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
                 else
                     var complement = "";
                 if (var_play) {
-		  window.history.pushState({ state: 'play', mp3: var_mp3,  title: var_title, time: var_time, url: var_url}, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time+complement);
+		  window.history.pushState({ state: 'play', mp3: var_mp3,  title: var_title, time: var_time, url: var_url}, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time+complement+"#campus_player");
+		  jump("campus_player");
                 }
 		
 		jQuery('#jquery_jplayer_1').bind(jQuery.jPlayer.event.ended +'.jp-repeat', function() { 
@@ -1009,8 +1016,10 @@ function play_live(var_start, var_history)
 		var myDiv = document.getElementById("time");
 		myDiv.innerHTML = "<em>en direct</em>";
 
-		if (var_history)
-		  window.history.pushState({ state: 'direct' }, 'Radio Campus en direct', '<?php echo $prefix_url;?>?live=true');
+		if (var_history) {
+		  window.history.pushState({ state: 'direct' }, 'Radio Campus en direct', '<?php echo $prefix_url;?>?live=true#campus_player');
+		  jump("campus_player");
+                }
 
 
 		//$("#jquery_jplayer_1").jPlayer("clearMedia");
@@ -1267,6 +1276,8 @@ function getUrlFromDateTime(var_datetime) {
   return "?date=" + var_datetime[0] + '&time=' + parseInt(var_datetime[1]);
 }
 function getDateHumanFormat(var_datetime) {
+  if ((typeof var_datetime == 'undefined') || (typeof var_datetime[0] == 'undefined'))
+    return "";
   var m2Txt = [ "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre" ];
   var jour = var_datetime[0].split("-");
   return parseInt(jour[2], 10) + " " + m2Txt[parseInt(jour[1], 10) - 1] + " " + jour[0] + ", " + parseInt(var_datetime[1], 10) + "h";
@@ -1353,7 +1364,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 <div id="main"><div id="fixed-size">
                         <!--<a href="http://www.campus-clermont.net/"><img src="image_aleatoire.php" alt="Radio Campus" /><br /></a>-->
                         
-                        <a href="http://www.campus-clermont.net/"><img src="images/logo20ans.png " alt="Radio Campus"/></a>
+                        <a href="http://www.campus-clermont.net/" class="logo-campus"><img src="images/logo20ans.png " alt="Radio Campus"/></a>
 
 
 
@@ -1633,7 +1644,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
   <p>Radio Campus Clermont-Ferrand - 16 rue Degeorges 63000 Clermont-Ferrand <br />
     tél: 04.73.140.158 - fax: 04.73.902.877 - mail: <a href="mailto:antenne@clermont.radiocampus.org">antenne@clermont.radiocampus.org</a><br />
     <a href="/mentions-legales.html">mentions légales</a></p>
-  <p style="text-align: right;">Sauf mention contraire, les podcasts proposés en écoute et téléchargement sur cette page sont la propriété de Radio Campus et de l'équipe ayant réalisé l'émission correspondante.<br />
+  <p class="right">Sauf mention contraire, les podcasts proposés en écoute et téléchargement sur cette page sont la propriété de Radio Campus et de l'équipe ayant réalisé l'émission correspondante.<br />
   <a href="/onair/podcast/admin/?date=<?php echo $date; ?>" style="text-decoration: none; color: #888;">administration</a></p>
  </div>
 </div>
