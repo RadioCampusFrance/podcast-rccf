@@ -843,7 +843,7 @@ function launch_track(var_mp3, var_ok, var_time)
     if ($podcasts[$i]->available == 0) { 
 	echo ' style="display: none"';
     } ?>>
-        <select id="time-min-<?php echo $i; ?>">
+        <select name="minute" id="time-min-<?php echo $i; ?>">
             <?php for($it = 0; $it != 60; ++$it) {
                 if ($it <= 9)
                     $ii = '0'.$it;
@@ -856,8 +856,8 @@ function launch_track(var_mp3, var_ok, var_time)
                 echo ">".$ii."</option>";
             }
             ?>
-        </select> <span class="midtime">:</span> 
-        <select id="time-sec-<?php echo $i; ?>">
+        </select> <span class="midtime">min</span> 
+        <select name="seconde" id="time-sec-<?php echo $i; ?>">
             <?php for($it = 0; $it != 60; ++$it) {
                 if ($it <= 9)
                     $ii = '0'.$it;
@@ -870,7 +870,7 @@ function launch_track(var_mp3, var_ok, var_time)
                 echo ">".$ii."</option>";
             }
             ?>
-        </select>        
+        </select>  <span class="midtime">sec</span>      
         </div>
     <?php } ?>
     </div>
