@@ -1297,5 +1297,11 @@ font-size: 80%;
         width: 130px;
     }
     
+    .ui-datepicker-calendar td {
+        width: 25px;
+    }
+    .ui-datepicker-calendar td a {
+        width: auto;
+    }
     
 }
