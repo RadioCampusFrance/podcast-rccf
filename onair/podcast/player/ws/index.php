@@ -291,7 +291,7 @@ function load_podcasts($jsonDay, $date, $bdd) {
             if ($first == -1)
                 $first = $i;
             else if ($second == -1) {
-                $second = -1;
+                $second = $i;
                 break;
             } 
 	  }
@@ -307,7 +307,7 @@ function load_podcasts($jsonDay, $date, $bdd) {
 	  if ($first != 1)
 	    $podcasts[0]->shortTitle = "la nuit";
 	}
-	if ($first == 0 && $second > 0) {
+	if ($first == 0 && $second > 1) {
 	  $entries = get_paulo_entries($date, $first + 1, $bdd_paulo, "..", $second);
 	  $podcasts[$first + 1] = new Podcast($bdd_drupal, $first + 1, $entries, $second-1, $date);
 	  if ($second != 1)
