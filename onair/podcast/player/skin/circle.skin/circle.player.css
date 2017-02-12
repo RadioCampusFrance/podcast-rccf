@@ -402,7 +402,7 @@ color: #ccc;
 }
 
 /* ajustements de démarrage */
-.hidden #main-play, .hidden#searchBox, .hidden#agendaBox, .hidden#contactBox, .hidden#rssBox {
+.hidden #main-play, .hidden#searchBox, .hidden#agendaBox, .hidden#contactBox, .hidden#rssBox, .hidden#embedBox {
     display: none;
 }
 
@@ -418,6 +418,11 @@ color: #ccc;
     display: inline-block;
 }
 
+#codeEmbed {
+	margin: 1em;
+	background: #fff;
+	padding: 1em;
+}
 
 
 #tracklist li#directlink p, #tracklist li .large {
@@ -624,7 +629,7 @@ height: 250px;
 #buttonAgenda:hover {
   background: url("agenda-hover.png") 0 0 no-repeat;
 }
-#buttonDirect {
+#buttonDirect, #buttonEmbed {
   background: url("bouton.png") 0 0 no-repeat;
   width: 45px;
   height: 45px;
@@ -632,7 +637,7 @@ height: 250px;
   font-size: 11px;
   font-weight: bold;
 }
-#buttonDirect:hover {
+#buttonDirect:hover, #buttonEmbed:hover {
   background: url("bouton-hover.png") 0 0 no-repeat;
   text-decoration: none;
   color: #777777;
@@ -1084,7 +1089,7 @@ font-size: 80%;
     #directlink {
         background-position: 0 10px !important;
     }
-    .popupBox, #searchBox, #agendaBox, #contactBox, #rssBox {
+    .popupBox, #searchBox, #agendaBox, #contactBox, #rssBox, #embedBox {
             width: 70% !important;
             height: 80%;
             position: fixed;

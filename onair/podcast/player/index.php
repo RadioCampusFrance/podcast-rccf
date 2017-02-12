@@ -657,6 +657,10 @@ function clear_previous() {
     if (play != undefined) {
       play.className = "titres_musicaux";
     }
+    var play = document.getElementById("embedBox");
+    if (play != undefined) {
+      play.className = "hidden";
+    }
     var play = document.getElementById("searchBox");
     if (play != undefined) {
       play.className = "hidden";
@@ -675,6 +679,7 @@ function clear_previous() {
     }
     window.activeTime = undefined;
     window.searchBoxOpen = undefined;
+    window.embedBoxOpen = undefined;
     window.agendaBoxOpen = undefined;
     window.contactBoxOpen = undefined;
     window.rssBoxOpen = undefined;
@@ -1099,6 +1104,52 @@ function display_entries(var_time, var_active) {
 		  update_reseaux_sociaux('http://<?php echo $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
 }
 
+function open_embed() {
+
+
+		var titres = document.getElementById("codeEmbed");
+		url = "http://www.campus-clermont.net/onair/podcast/player/embed.php?";
+		if (window.live) {
+			url += "live=true";
+			titres.innerHTML = "&lt;iframe src=\"" + url + "\" width=\"530px\" height=\"230px\" style=\"border: 1px solid #ccc;\"&gt;&lt;/iframe&gt;";
+		}
+		else if (window.activeTime != undefined) {
+			url += "date=<?php echo $date; ?>&amp;time=" + window.activeTime;
+			titres.innerHTML = "&lt;iframe src=\"" + url + "\" width=\"530px\" height=\"230px\" style=\"border: 1px solid #ccc;\"&gt;&lt;/iframe&gt;";
+		}
+		else {
+			titres.innerHTML = "Il n'y a pas de podcast en cours d'écoute.";
+		}
+
+		if (window.embedBoxOpen == true) {
+		clear_previous();
+		  return;
+		}
+		clear_previous();
+
+		var titres = document.getElementById("embedBox");
+		titres.className = "superbox popupBox";
+		titres.style.width = "0";
+		titres.style.height = "0";
+		$('#embedBox').animate({
+		  width: "+=700px",
+		  height: "+=350px"
+		}, 100, function() {
+		  // Animation complete.
+		});		
+
+		if (window.embedBoxOpenFirst === undefined) {
+		  $("#embedBox_scroll").mCustomScrollbar();
+		  window.embedBoxOpenFirst = true;
+		}
+		  window.embedBoxOpen = true;
+		  
+
+		
+
+}
+
+
 function open_search() {
 
 		if (window.searchBoxOpen == true) {
@@ -1469,6 +1520,15 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			    </div>
 			  </div>
 			</div>
+			<div id="embedBox" <?php if (!isset($actionEmbedBox)) { echo 'class="hidden"'; }?> >
+			  <div class="close" onClick="clear_previous()">X</div>
+			  <h2><span>Lecteur embarqué</span></h2>
+			  <div class="scrollregion fenetre-scroll" id="embedBox_scroll">
+			    <div>Pour insérer le lecteur de ce podcast dans un site internet, copier/coller le code suivant...</div>
+			    <div id="codeEmbed">
+			    </div>
+			  </div>
+			</div>
 			<div id="rssBox" class="hidden" >
 			  <div class="close" onClick="clear_previous()">X</div>
 			  <h2><span>Les flux RSS des podcasts</span></h2>
@@ -1614,6 +1674,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
   <p id="buttonSearch" class="button" title="Rechercher" onClick="open_search()" alt="rechercher"></p>
   <p id="buttonAgenda" class="button" title="Choisir un jour" onClick="open_agenda()" alt="choisir un jour"></p>
   <a id="buttonDirect" class="button" href="/onair/podcast/player/?live=true" title="Aller au direct" alt="Aller au direct">direct</a>
+  <p id="buttonEmbed" class="button" onClick="open_embed()" title="Player embarqué" alt="Player embarqué">&lt; /&gt;</a>
   </div>
  <div id="menu-pied">
  <div class="colonne">
