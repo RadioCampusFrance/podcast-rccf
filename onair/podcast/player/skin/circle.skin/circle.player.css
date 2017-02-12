@@ -313,23 +313,32 @@ body {
   cursor: pointer;
   z-index: 17;
   position: relative;
+  display: inline-block;
+  padding: .2em;
 }
 
 #time:hover {
-    color: #333;
-    
-}
-#time:hover:after {
-    content: "url";
     background: #1692ae;
     color: #fff;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+	vertical-align: middle;
+}
+/*#time:hover:after {
+    content: "url";
+    background: #62c4df;
+    color: #fff;
     padding: 5px;
-    margin-left: 5px;
-    font-size: 70%;
+	margin-left: 5px;
+	margin-top: 2px;
+    font-size: 50%;
+	display: inline-block;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
-}
+	vertical-align: middle;
+}*/
 
 
 #tracklist li {

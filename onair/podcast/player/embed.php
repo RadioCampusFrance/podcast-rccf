@@ -367,13 +367,7 @@ $(document).ready(function(){
 	    if (isset($podcasts[$i]) && !$podcasts[$i]->ok)  {
 	      echo "window.number_entries[".$podcasts[$i]->time."] = ".count($podcasts[$i]->paulo_entries).";";
 	      $j = 0;
-	      if ($podcasts[$i]->paulo_entries) {
-		  echo "window.time_entries[".$podcasts[$i]->time."] = [];\n";
-	      foreach($podcasts[$i]->paulo_entries as $entry) {
-		echo "window.time_entries[".$podcasts[$i]->time."][".$j."] = '".$entry->time."';\n";
-		$j = $j + 1;
-	      }
-	    }
+
 	    }
 	    else if (isset($podcasts[$i]) && isset($podcasts[$i]->image) && $podcasts[$i]->image != "")
 	      	      echo "window.pImages[".$podcasts[$i]->time."] = '".addslashes($podcasts[$i]->image) ."';";

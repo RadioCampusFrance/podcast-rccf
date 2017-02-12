@@ -653,6 +653,29 @@ function clear_previous() {
       myDiv.className = myDiv.className.substring(0, lastIndex);
     }
 
+    close_windows();
+    window.activeTime = undefined;
+
+    var myDiv = document.getElementById("directlink");
+    if (myDiv != undefined)
+      myDiv.className = "";
+    window.live = false;
+
+    var myDiv = document.getElementById("hour_of_podcast");
+    myDiv.innerHTML = "";
+
+    var myDiv = document.getElementById("description_of_podcast");
+    myDiv.innerHTML = "";
+
+    var myDiv = document.getElementById("ecoutes_of_podcast");
+    myDiv.innerHTML = "";
+    
+    remove_telecharger();
+    remove_similaire();
+    remove_image();
+}
+
+function close_windows() {
     var play = document.getElementById("titres_musique" + window.activeTime);
     if (play != undefined) {
       play.className = "titres_musicaux";
@@ -677,30 +700,12 @@ function clear_previous() {
     if (play != undefined) {
       play.className = "hidden";
     }
-    window.activeTime = undefined;
     window.searchBoxOpen = undefined;
     window.embedBoxOpen = undefined;
     window.agendaBoxOpen = undefined;
     window.contactBoxOpen = undefined;
     window.rssBoxOpen = undefined;
-    
-    var myDiv = document.getElementById("directlink");
-    if (myDiv != undefined)
-      myDiv.className = "";
-    window.live = false;
 
-    var myDiv = document.getElementById("hour_of_podcast");
-    myDiv.innerHTML = "";
-
-    var myDiv = document.getElementById("description_of_podcast");
-    myDiv.innerHTML = "";
-
-    var myDiv = document.getElementById("ecoutes_of_podcast");
-    myDiv.innerHTML = "";
-    
-    remove_telecharger();
-    remove_similaire();
-    remove_image();
 }
 
 function set_image_default(var_time) {
@@ -1122,10 +1127,10 @@ function open_embed() {
 		}
 
 		if (window.embedBoxOpen == true) {
-		clear_previous();
+		close_windows();
 		  return;
 		}
-		clear_previous();
+		close_windows();
 
 		var titres = document.getElementById("embedBox");
 		titres.className = "superbox popupBox";
@@ -1153,10 +1158,10 @@ function open_embed() {
 function open_search() {
 
 		if (window.searchBoxOpen == true) {
-		clear_previous();
+		close_windows();
 		  return;
 		}
-		clear_previous();
+		close_windows();
 
 		var titres = document.getElementById("searchBox");
 		titres.className = "superbox popupBox";
@@ -1185,10 +1190,10 @@ function pressSearch(event) {
 
 function open_rss() {
 		if (window.rssBoxOpen == true) {
-		clear_previous();
+		close_windows();
 		  return;
 		}
-		clear_previous();
+		close_windows();
 
 
 		var titres = document.getElementById("rssBox");
@@ -1207,10 +1212,10 @@ function open_rss() {
 	
 function open_contact() {
 		if (window.contactBoxOpen == true) {
-		clear_previous();
+		close_windows();
 		  return;
 		}
-		clear_previous();
+		close_windows();
 
 
 		var titres = document.getElementById("contactBox");
@@ -1229,10 +1234,10 @@ function open_contact() {
 		  
 function open_agenda() {
 		if (window.agendaBoxOpen == true) {
-		clear_previous();
+		close_windows();
 		  return;
 		}
-		clear_previous();
+		close_windows();
 
 
 		var titres = document.getElementById("agendaBox");
@@ -1511,7 +1516,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 ?>		      
 			</div>
 			<div id="searchBox" <?php if (!isset($actionSearch)) { echo 'class="hidden"'; }?> >
-			  <div class="close" onClick="clear_previous()">X</div>
+			  <div class="close" onClick="close_windows()">X</div>
 			  <h2><span>Rechercher un podcast</span></h2>
 			  <div class="scrollregion fenetre-scroll" id="searchBox_scroll">
 				<input type="text" name="recherche" id="champsRecherche" value="<?php echo $actionSearch; ?>" onKeyPress="pressSearch(event)" />
@@ -1521,16 +1526,16 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			  </div>
 			</div>
 			<div id="embedBox" <?php if (!isset($actionEmbedBox)) { echo 'class="hidden"'; }?> >
-			  <div class="close" onClick="clear_previous()">X</div>
+			  <div class="close" onClick="close_windows()">X</div>
 			  <h2><span>Lecteur embarqué</span></h2>
-			  <div class="scrollregion fenetre-scroll" id="embedBox_scroll">
+			  <div class="fenetre-scroll" id="embedBox_scroll" style="padding: 1em">
 			    <div>Pour insérer le lecteur de ce podcast dans un site internet, copier/coller le code suivant...</div>
-			    <div id="codeEmbed">
+			    <div id="codeEmbed" style="font-family: monospace">
 			    </div>
 			  </div>
 			</div>
 			<div id="rssBox" class="hidden" >
-			  <div class="close" onClick="clear_previous()">X</div>
+			  <div class="close" onClick="close_windows()">X</div>
 			  <h2><span>Les flux RSS des podcasts</span></h2>
 			  <div class="fenetre-scroll">
 			    <p><a style="margin-right: 10px" href="/onair/podcast/player/rss/" target="_blank" title="Les derniers podcasts"><img src="images/rss-small.png" alt="flux rss"/></a> le flux RSS de tous les podcasts</p>
@@ -1545,7 +1550,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			    </div>
 			  </div>		
 			<div id="agendaBox" class="hidden" >
-			  <div class="close" onClick="clear_previous()">X</div>
+			  <div class="close" onClick="close_windows()">X</div>
 			  <h2><span>Changer de jour</span></h2>
 			    <div class="fenetre-scroll"><div id="datepicker"></div>
 				  <div id="godate" title="Aller au jour sélectionné">Aller au jour</div>
@@ -1553,7 +1558,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			    </div>
 			  </div>
 			<div id="contactBox" class="hidden" >
-			  <div class="close" onClick="clear_previous()">X</div>
+			  <div class="close" onClick="close_windows()">X</div>
 			  <h2><span>Signaler un problème</span></h2>
 			    <div class="fenetre-scroll">
 			    <p>Utiliser le formulaire ci-dessous pour signaler un problème de fonctionnement du podcast, ou envoyer un courrier à <a href="mailto:webmaster@clermont.radio-campus.org">webmaster@clermont.radio-campus.org</a>.</p>
