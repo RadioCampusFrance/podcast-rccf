@@ -1039,6 +1039,13 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			</div>
 			<div id="dl_podcast">
 			</div>
+			<div id="directlink">
+			<?php if (isset($actionLive)) { ?>
+				<a href="http://campus-clermont.net//onair/podcast/player/?live=true" target="_blank">lien direct ▶</a>
+			<?php } else { ?>
+				<a href="http://campus-clermont.net//onair/podcast/player/?date=<?php echo $date; ?>&amp;time=<?php echo $time; ?>" target="_blank">lien direct ▶</a>
+				<?php } ?>
+			</div>
 
 	</div>
 </body>

@@ -265,7 +265,7 @@ body {
 	position: absolute;
 	width: 100px;
 	height: 24px;
-	top: 10px;
+	top: 40px;
 	left: 180px;
 }
 #reseauxsociaux {
@@ -282,7 +282,17 @@ body {
 	margin-right: 5px;
 }
 
-#dl_podcast a {
+#directlink {
+	position: absolute;
+	width: 100px;
+	height: 24px;
+	top: 10px;
+	left: 180px;
+}
+
+
+
+#dl_podcast a, #directlink a {
   display: block;
   border: 2px solid black;
   -webkit-border-radius: 12px;
