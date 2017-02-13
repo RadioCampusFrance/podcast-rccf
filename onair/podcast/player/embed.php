@@ -999,7 +999,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			  </div>
 			  <div id="ecoutes_of_podcast">			
 			  </div>
-			  <div id="RCCF"><a href="http://campus-clermont.net">Radio Campus Clermont-Ferrand</a></div>
+			  <div id="RCCF"><a href="http://campus-clermont.net" target="_blank">Radio Campus Clermont-Ferrand</a></div>
 			</div>
 
 			<div />
