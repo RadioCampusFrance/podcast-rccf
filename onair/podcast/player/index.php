@@ -1295,7 +1295,7 @@ $.ajax({
 			{
 
 			  if (data.length !=0) {
-			    var elements = "<div style=\"font-size:80%; float: right; text-align: right\"><em>flux RSS de cette recherche <a style=\"margin-left: 10px\" href=\"/onair/podcast/player/rss/?q=" + encodeURIComponent(var_search) + "\" title=\"actualités de " + var_search + "\"><img src=\"images/rss-small.png\" alt=\"flux rss\"/></a></em></div>";
+			    var elements = "<div style=\"font-size:80%; float: right; text-align: right\"><em>flux RSS de cette recherche <a style=\"margin-left: 10px\" href=\"/onair/podcast/player/rss/?q=" + encodeURIComponent(var_search) + "\" title=\"actualités de " + var_search.replace(/\"/g,'&quot;')  + "\"><img src=\"images/rss-small.png\" alt=\"flux rss\"/></a></em></div>";
 			    elements += "<p>" + data.length + " résultats.</p>";
 			    elements += "<ul>";			  
 			    for(i = 0; i != data.length; ++i) {
@@ -1519,7 +1519,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			  <div class="close" onClick="close_windows()">X</div>
 			  <h2><span>Rechercher un podcast</span></h2>
 			  <div class="scrollregion fenetre-scroll" id="searchBox_scroll">
-				<input type="text" name="recherche" id="champsRecherche" value="<?php echo $actionSearch; ?>" onKeyPress="pressSearch(event)" />
+				<input type="text" name="recherche" id="champsRecherche" value="<?php echo htmlspecialchars($actionSearch); ?>" onKeyPress="pressSearch(event)" />
 			    <div class="buttonRechercher" onClick="rechercher(true)">Rechercher</div>
 			    <div id="results">
 			    </div>
