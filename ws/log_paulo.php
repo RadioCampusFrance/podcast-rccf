@@ -3,7 +3,7 @@ include 'outilEtRequete.php';
 include 'configPaulo.php';
 
 
-$json = file_get_contents("http://80.11.133.224/api/live-info?type=show_content");
+$json = file_get_contents("https://89.89.242.191/api/live-info?type=show_content"); // IP 22 bis
 $entries = json_decode($json);
 $entries = $entries->currentShowContent;
 
