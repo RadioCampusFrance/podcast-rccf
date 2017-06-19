@@ -739,8 +739,7 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		  window.var_time_string = var_time;
 		  
 		  setexacturl = false;
-                  if (var_play) {
-                    if (window.minsec_first) {
+		   if (window.minsec_first) {
                         sec = window.initial_sec;
                     }
                     else if (window.secTime[var_time])
@@ -757,6 +756,9 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
                     else
                         min = 0;
                     start = min * 60 + sec;
+		  
+                  if (var_play) {
+                   
                     $("#jquery_jplayer_1").jPlayer("setMedia", { 
 			mp3: "../OK/<?php echo $date; ?>/<?php echo $date; ?>-" + var_time_string + "00.mp3",
 		}).jPlayer("play", start);
@@ -764,7 +766,7 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
                 else {
                 		$("#jquery_jplayer_1").jPlayer("setMedia", { 
 			mp3: "../OK/<?php echo $date; ?>/<?php echo $date; ?>-" + var_time_string + "00.mp3",
-		});
+		}).jPlayer("pause", start);;
                 }
 
                 if (setexacturl) {
