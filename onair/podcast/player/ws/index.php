@@ -323,6 +323,7 @@ function load_podcasts($jsonDay, $date, $bdd) {
 	  if (!isset($podcasts[$i])) {
 	    $program = get_program_at($year, $month, $day, $i);
 	    if (count($program) != 0) {
+        $elem = new \stdClass();
 	      $elem->mp3 = "future";
 	      $elem->time = $i;
 	      $elem->title = $program[0];
