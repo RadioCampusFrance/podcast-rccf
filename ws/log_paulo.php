@@ -2,8 +2,13 @@
 include 'outilEtRequete.php';
 include 'configPaulo.php';
 
-
-$json = file_get_contents("https://89.83.10.85/api/live-info?type=show_content"); // IP 22 bis
+$arrContextOptions=array(
+    "ssl"=>array(
+        "verify_peer"=> false,
+        "verify_peer_name"=> false,
+    ),
+);
+$json = file_get_contents("https://89.83.10.85/api/live-info?type=show_content", false, stream_context_create($arrContextOptions)); // IP 22 bis
 $entries = json_decode($json);
 $entries = $entries->currentShowContent;
 

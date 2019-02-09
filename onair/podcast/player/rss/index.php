@@ -4,6 +4,7 @@
 include 'feedwriter/Item.php';
 include 'feedwriter/Feed.php';
 include 'feedwriter/RSS2.php';
+
 setlocale (LC_TIME, 'fr_FR.utf8','fra'); 
 date_default_timezone_set('Europe/Paris');
 
@@ -20,7 +21,7 @@ if (!isset($emission))
   $emission = "";
 $sans100 = isset($_GET["sans-100"]);
   
-header("Content-Type: application/rss+xml");
+header("Content-Type: application/rss+xml; charset=utf-8");
 
 $feedkey = $sans100 ? "sans100" : ($emission == "" ? "all" : $emission);
 if ($c->isCached($feedkey)) {
@@ -72,7 +73,7 @@ foreach($jsonObject as $entry) {
     $details = explode("-", $entry[0]);
     
     
-    $item->setTitle($entry[2] . " du " . intval($details[2]) . " ". $m2Txt[$details[1] - 1] . " " . $details[0]);
+    $item->setTitle($entry[2] . "  du " . intval($details[2]) . " ". $m2Txt[$details[1] - 1] . " " . $details[0]);
     $item->setLink("http://www.campus-clermont.net/onair/podcast/player/?date=".$entry[0]."&time=".$entry[1]);
     $item->setEnclosure("http://www.campus-clermont.net/onair/podcast/player/mp3.php?dh=".$entry[0]."_".$entry[1], 0, "audio/mp3", false);
     $item->setDate(strtotime($entry[0] . " " . $entry[1] . ":00:00"));
