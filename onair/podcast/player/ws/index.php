@@ -171,10 +171,10 @@ class Podcast {
       get_details_from_date($date, $day, $month, $year);
       
        $sql = "SELECT n.title, j.field_jour_value, h.field_heure_value, fm.uri from drupal_node as n
-			LEFT JOIN drupal_field_data_field_heure as h ON h.entity_id = n.vid
-			LEFT JOIN drupal_field_data_field_duree as d ON d.entity_id = n.vid
-			LEFT JOIN drupal_field_data_field_jour as j ON j.entity_id = n.vid
-			LEFT JOIN drupal_field_data_field_photo as ph ON ph.entity_id = n.vid
+			LEFT JOIN drupal_field_data_field_heure as h ON h.entity_id = n.nid
+			LEFT JOIN drupal_field_data_field_duree as d ON d.entity_id = n.nid
+			LEFT JOIN drupal_field_data_field_jour as j ON j.entity_id = n.nid
+			LEFT JOIN drupal_field_data_field_photo as ph ON ph.entity_id = n.nid
 			LEFT JOIN drupal_file_managed as fm ON fm.fid = ph.field_photo_fid
 			WHERE n.type LIKE 'emission'";
 	  $jour = date('N', mktime(0,0,0,$month,$day,$year));
@@ -323,7 +323,7 @@ function load_podcasts($jsonDay, $date, $bdd) {
 	  if (!isset($podcasts[$i])) {
 	    $program = get_program_at($year, $month, $day, $i);
 	    if (count($program) != 0) {
-        $elem = new \stdClass();
+	      $elem = new \stdClass();
 	      $elem->mp3 = "future";
 	      $elem->time = $i;
 	      $elem->title = $program[0];

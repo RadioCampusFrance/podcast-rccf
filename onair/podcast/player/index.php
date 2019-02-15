@@ -762,7 +762,6 @@ function set_image(url) {
 
 function add_image(var_title, var_time, var_year, var_month, var_day, force) {
 
-		
 		if (window.pImages[var_time] != undefined && !force)
 		  set_image(window.pImages[var_time]);
 		else
