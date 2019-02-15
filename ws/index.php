@@ -317,10 +317,10 @@ function imageEmission($bdd) {
 	$title = $bdd->quote($_GET["t"]);
 
 	  $sql = "SELECT n.title, j.field_jour_value, h.field_heure_value, fm.uri from drupal_node as n
-			LEFT JOIN drupal_field_data_field_heure as h ON h.entity_id = n.vid
-			LEFT JOIN drupal_field_data_field_duree as d ON d.entity_id = n.vid
-			LEFT JOIN drupal_field_data_field_jour as j ON j.entity_id = n.vid
-			LEFT JOIN drupal_field_data_field_photo as ph ON ph.entity_id = n.vid
+			LEFT JOIN drupal_field_data_field_heure as h ON h.entity_id = n.nid
+			LEFT JOIN drupal_field_data_field_duree as d ON d.entity_id = n.nid
+			LEFT JOIN drupal_field_data_field_jour as j ON j.entity_id = n.nid
+			LEFT JOIN drupal_field_data_field_photo as ph ON ph.entity_id = n.nid
 			LEFT JOIN drupal_file_managed as fm ON fm.fid = ph.field_photo_fid
 			WHERE n.type LIKE 'emission'";
 	if (isset($jour))
