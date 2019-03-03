@@ -274,7 +274,10 @@ function load_podcasts($jsonDay, $date, $bdd) {
 	get_date($date, $day, $month, $year);
         date_default_timezone_set($timezone_server);
 
-	
+  $withPaulo = true;
+	if (isset($_GET["paulo"]) && $_GET["paulo"] == 0) {
+    $withPaulo = false;
+	}
 	$datex = explode('-',$date);
 
 
@@ -282,7 +285,7 @@ function load_podcasts($jsonDay, $date, $bdd) {
 
 	$ecoutes = load_ecoutes($date, $bdd_paulo);
 	
-	$podcasts = load_podcasts($jsonDay, $date, $bdd_drupal);
+	$podcasts = load_podcasts($jsonDay, $date, $bdd_drupal, $withPaulo);
 
 	$first = -1;
 	$second = -1;
@@ -300,47 +303,47 @@ function load_podcasts($jsonDay, $date, $bdd) {
         if ($second == -1)
             $second = 7;
         
+  if ($withPaulo) {
+      if ($first != 0) {
+        $entries = get_paulo_entries($date, 0, $bdd_paulo, "..", $first);
+        $podcasts[0] = new Podcast($bdd_drupal, 0, $entries, $first, $date);
+        if ($first != 1)
+          $podcasts[0]->shortTitle = "la nuit";
+      }
+      if ($first == 0 && $second > 1) {
+        $entries = get_paulo_entries($date, $first + 1, $bdd_paulo, "..", $second);
+        $podcasts[$first + 1] = new Podcast($bdd_drupal, $first + 1, $entries, $second-1, $date);
+        if ($second != 1)
+          $podcasts[$first + 1]->shortTitle = "la nuit";
+      }
+      
+      // ajout des créneaux de podcast pas encore récupérés, mais qui vont arriver
+      $heureCourante = intval(date("G"));
+      $firstH = $heureCourante - 2;
+      if ($firstH < 0)
+        $firstH = 0;
+      for($i = $firstH; $i != $heureCourante + 1; $i++) {
+        if (!isset($podcasts[$i])) {
+          $program = get_program_at($year, $month, $day, $i);
+          if (count($program) != 0) {
+            $elem = new \stdClass();
+            $elem->mp3 = "future";
+            $elem->time = $i;
+            $elem->title = $program[0];
+            $elem->podcastable = $program[1];
+            $podcasts[$i] = new Podcast($bdd_drupal, $elem, $date);
+          }
+        }
+      }
 
-	if ($first != 0) {
-	  $entries = get_paulo_entries($date, 0, $bdd_paulo, "..", $first);
-	  $podcasts[0] = new Podcast($bdd_drupal, 0, $entries, $first, $date);
-	  if ($first != 1)
-	    $podcasts[0]->shortTitle = "la nuit";
-	}
-	if ($first == 0 && $second > 1) {
-	  $entries = get_paulo_entries($date, $first + 1, $bdd_paulo, "..", $second);
-	  $podcasts[$first + 1] = new Podcast($bdd_drupal, $first + 1, $entries, $second-1, $date);
-	  if ($second != 1)
-	    $podcasts[$first + 1]->shortTitle = "la nuit";
-	 }
-	 
-	// ajout des créneaux de podcast pas encore récupérés, mais qui vont arriver
-	$heureCourante = intval(date("G"));
-	$firstH = $heureCourante - 2;
-	if ($firstH < 0)
-	  $firstH = 0;
-	for($i = $firstH; $i != $heureCourante + 1; $i++) {
-	  if (!isset($podcasts[$i])) {
-	    $program = get_program_at($year, $month, $day, $i);
-	    if (count($program) != 0) {
-	      $elem = new \stdClass();
-	      $elem->mp3 = "future";
-	      $elem->time = $i;
-	      $elem->title = $program[0];
-	      $elem->podcastable = $program[1];
-	      $podcasts[$i] = new Podcast($bdd_drupal, $elem, $date);
-	    }
-	  }
-	}
-
-	for($i = $second; $i != 24; $i++)
-	  if (!isset($podcasts[$i])) {
-	    $entries = get_paulo_entries($date, $i, $bdd_paulo, "..");
-	    if ($entries && count($entries) > 0) {
-	      $podcasts[$i] = new Podcast($bdd_drupal, $i, $entries, 1, $date);
-	    }
-	  }
-
+      for($i = $second; $i != 24; $i++)
+        if (!isset($podcasts[$i])) {
+          $entries = get_paulo_entries($date, $i, $bdd_paulo, "..");
+          if ($entries && count($entries) > 0) {
+            $podcasts[$i] = new Podcast($bdd_drupal, $i, $entries, 1, $date);
+          }
+        }
+      }
 	  
         // on modifie les écoutes, et on ajoute les titres pour les 100%
         foreach($podcasts as $p) {

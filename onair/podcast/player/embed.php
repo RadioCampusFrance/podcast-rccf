@@ -220,7 +220,7 @@ class Podcast {
 }
 
 	function load_podcasts_from_ws($date) {
-	  $podcasts = json_decode(file_get_contents("http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/?date=" . $date));
+	  $podcasts = json_decode(file_get_contents("http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/?paulo=0&date=" . $date));
 	  // conversion to object
 	  $result = array();
 	  if (count($podcasts) != 0)
