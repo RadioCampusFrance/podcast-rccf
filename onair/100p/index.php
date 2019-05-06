@@ -82,7 +82,7 @@
     function charger_podcasts($selected_style) {
         global $styles;
         // on charge les émissions similaires
-        $req = "http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/search.php?action=list&q=100%%20" . urlencode($selected_style);
+        $req = "http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/search.php?action=list&q=100%" . urlencode($selected_style);
         $jsonObject = json_decode(file_get_contents($req));
         $result = array();
         foreach($jsonObject as $json) {
@@ -179,7 +179,7 @@
             echo "</li>";
         }
         echo "</ul>";
-        echo '<p style="color: #ccc">Certains titres de cette playlist peuvent ne pas être affichés, pour des problèmes techniques indépendants de notre volonté.</p>';
+        //echo '<p style="color: #ccc">Certains titres de cette playlist peuvent ne pas être affichés, pour des problèmes techniques indépendants de notre volonté.</p>';
     }
     
     function afficher_podcast($podcast, $timecode, $visible) {
