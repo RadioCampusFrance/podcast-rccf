@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <?php
 
-    $styles = array("tout" => "", "metal" => "Métal", "rock" => "Rock", "chanson" => "Chanson", "hip-hop" => "Hip Hop", "rdw" => "Reggae Dub World", "electro" => "Electro", "jazz" => "Jazz", "pop" => "Pop");
+    $styles = array("tout" => "", "rock" => "Rock", "chanson" => "Chanson", "hip-hop" => "Hip Hop", "rdw" => "Reggae Dub World", "electro" => "Electro", "jazz" => "Jazz", "pop" => "Pop"); // "metal" => "Métal", 
 
         // définition du style sélectionné
     if (isset($_GET["style"])) {
@@ -82,7 +82,7 @@
     function charger_podcasts($selected_style) {
         global $styles;
         // on charge les émissions similaires
-        $req = "http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/search.php?action=list&q=100%" . urlencode($selected_style);
+        $req = "http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/search.php?action=list&q=100" . urlencode("% ".$selected_style);
         $jsonObject = json_decode(file_get_contents($req));
         $result = array();
         foreach($jsonObject as $json) {
@@ -421,7 +421,7 @@
 			type: "GET",
 			async: false,
 			timeout: 5000,
-			url: "http://" + window.location.hostname + "/ws/?req=image&t=100% " + encodeURIComponent(ss),
+			url: "http://" + window.location.hostname + "/ws/?req=image&t=100" + encodeURIComponent("% ".ss),
 			success:function(data)
 			{
                             bg_images[ss] = data[0]["uri"];    

@@ -69,7 +69,7 @@ if ($nthJour == 5)
 			AND (h.field_heure_value = {$heure} OR (h.field_heure_value = ".($heure-1)." AND (d.field_duree_value = '2h' or d.field_duree_value = '3h'))
 			    OR (h.field_heure_value = ".($heure-2)." AND (d.field_duree_value = '3h')))
 			AND c.field_en_cours_value = 1
-			AND j.entity_id = n.vid;";
+			AND j.entity_id = n.nid;";
 	else
 	$sql = "SELECT DISTINCT title, field_podcastable_value as podcastable, nid FROM `drupal_field_data_field_jour` as j, `drupal_field_data_field_heure` as h, `drupal_field_data_field_en_cours` as c, `drupal_field_data_field_duree` as d, `drupal_field_data_field_podcastable` as p, `drupal_field_data_field_semaines` as s, `drupal_field_data_field_frequence` as f, drupal_node as n
 			WHERE j.bundle LIKE 'emission'
@@ -84,7 +84,7 @@ if ($nthJour == 5)
 			AND (h.field_heure_value = {$heure} OR (h.field_heure_value = ".($heure-1)." AND (d.field_duree_value = '2h' or d.field_duree_value = '3h'))
 			    OR (h.field_heure_value = ".($heure-2)." AND (d.field_duree_value = '3h')))
 			AND c.field_en_cours_value = 1
-			AND j.entity_id = n.vid;";
+			AND j.entity_id = n.nid;";
 			
 	  $prep = $bdd->query($sql);
 	  $tab_d = array();
