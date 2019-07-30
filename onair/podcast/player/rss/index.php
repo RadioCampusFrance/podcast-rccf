@@ -74,10 +74,10 @@ foreach($jsonObject as $entry) {
     
     
     $item->setTitle($entry[2] . "  du " . intval($details[2]) . " ". $m2Txt[$details[1] - 1] . " " . $details[0]);
-    $item->setLink("http://www.campus-clermont.net/onair/podcast/player/?date=".$entry[0]."&time=".$entry[1]);
+    $item->setLink("http://www.campus-clermont.net/onair/podcast/player/?date=".$entry[0]."&time=".intval($entry[1]));
     $item->setEnclosure("http://www.campus-clermont.net/onair/podcast/player/mp3.php?dh=".$entry[0]."_".$entry[1], 0, "audio/mp3", false);
     $item->setDate(strtotime($entry[0] . " " . $entry[1] . ":00:00"));
-    $item->setDescription("Émission " . $entry[2] . " diffusée le " . intval($details[2]) . " ". $m2Txt[$details[1] - 1] . " à " . $entry[1] ."h sur les ondes de Radio Campus Clermont-Ferrand");
+    $item->setDescription("Émission " . $entry[2] . " diffusée le " . intval($details[2]) . " ". $m2Txt[$details[1] - 1] . " à " . intval($entry[1]) ."h sur les ondes de Radio Campus Clermont-Ferrand");
     $TestFeed->addItem($item);
     $i = $i + 1;
   }
