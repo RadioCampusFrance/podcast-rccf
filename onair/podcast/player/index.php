@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html prefix="og: http://ogp.me/ns#">
 <head>
 <meta charset=utf-8 />
@@ -9,7 +9,12 @@
 
 include 'configPaulo.php';
 
-
+$http = "";
+if( isset($_SERVER['HTTPS'] ) ) {
+    $http = "https://";
+} else {
+    $http = "http://";
+}
 
 function get_time(&$time) {
   $time = $_GET['time'];
@@ -226,7 +231,8 @@ class Podcast {
 }
 
 	function load_podcasts_from_ws($date) {
-	  $podcasts = json_decode(file_get_contents("http://" . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/?date=" . $date));
+      global $http;
+	  $podcasts = json_decode(file_get_contents($http  . $_SERVER['HTTP_HOST'] . "/onair/podcast/player/ws/?date=" . $date));
 	  // conversion to object
 	  $result = array();
 	  if (count($podcasts) != 0)
@@ -311,7 +317,7 @@ else if (isset($actionLive)) { ?>
 <meta http-equiv="Content-Type" content="text/html; charset=utf8" />
 <link rel="stylesheet" media="screen" href="skin/circle.skin/circle.player.css?date=<?php echo filemtime('skin/circle.skin/circle.player.css');?>" />
 <link rel="stylesheet" href="skin/circle.skin/jquery.mCustomScrollbar.css" />
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script src="<?php echo $http; ?>ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.jplayer.min.js"></script>
 <script type="text/javascript" src="js/jquery.transform2d.js"></script>
 <script type="text/javascript" src="js/jquery.grab.js"></script>
@@ -321,12 +327,12 @@ else if (isset($actionLive)) { ?>
 <script type="text/javascript" src="js/jquery.ui.datepicker-fr.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
 
-<link rel="alternate" type="application/rss+xml" title="Tous les podcasts de Radio Campus" href="http://<?php echo $_SERVER['HTTP_HOST'];?>/onair/podcast/player/rss/" />
+<link rel="alternate" type="application/rss+xml" title="Tous les podcasts de Radio Campus" href="<?php echo $http . $_SERVER['HTTP_HOST'];?>/onair/podcast/player/rss/" />
 
 <?php 
 foreach($podcasts as $podcast) {
   if ($podcast->ok && $podcast->mp3 != "") { ?>
-    <link rel="alternate" type="application/rss+xml" title="Tous les podcasts de l'émission <?php echo str_replace("\"", "&quot;", $podcast->title); ?>" href="http://<?php echo $_SERVER['HTTP_HOST'];?>/onair/podcast/player/rss/?q=<?php echo rawurlencode($podcast->title); ?>" />
+    <link rel="alternate" type="application/rss+xml" title="Tous les podcasts de l'émission <?php echo str_replace("\"", "&quot;", $podcast->title); ?>" href=<?php echo $http . $_SERVER['HTTP_HOST'];?>/onair/podcast/player/rss/?q=<?php echo rawurlencode($podcast->title); ?>" />
     <?php
   }
 }
@@ -481,7 +487,7 @@ else if ($time != "" && (isset($podcasts[$time]) && $podcasts[$time]->ok)) {
  			type: "GET",
  			async: false,
  			timeout: 5000,
- 			url: "http://" + window.location.hostname + "/onair/podcast/player/ws/log_ecoute.php?d=<?php echo $date;?>&h=" + window.var_time_string,
+ 			url: "<?php echo $http; ?> " + window.location.hostname + "/onair/podcast/player/ws/log_ecoute.php?d=<?php echo $date;?>&h=" + window.var_time_string,
  			success:function(data) {},
  			error: function (textStatus, errorThrown) {}});
 		    }}
@@ -604,7 +610,7 @@ function add_similaire(var_time, var_title) {
 			type: "GET",
 			async: false,
 			timeout: 5000,
-			url: "http://" + window.location.hostname + "/onair/podcast/player/ws/search.php?action=similaire&q=" + encodeURIComponent(var_title) + "&y=<?php echo $datex[0];?>&m=<?php echo $datex[1];?>&d=<?php echo $datex[2];?>&h=" + var_time,
+			url: "<?php echo $http ; ?>" + window.location.hostname + "/onair/podcast/player/ws/search.php?action=similaire&q=" + encodeURIComponent(var_title) + "&y=<?php echo $datex[0];?>&m=<?php echo $datex[1];?>&d=<?php echo $datex[2];?>&h=" + var_time,
 			success:function(data)
 			{
 				//alert("http://" + window.location.hostname + "/onair/podcast/player/ws/search.php?action=similaire&q=" + encodeURIComponent(var_title) + "&y=<?php echo $datex[0];?>&m=<?php echo $datex[1];?>&d=<?php echo $datex[2];?>&h=" + var_time);
@@ -711,16 +717,16 @@ function close_windows() {
 function set_image_default(var_time) {
   var t = parseInt(var_time);
   if (t < 6) {
-    window.pImages[var_time] = 'http://<?php echo $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-bleu.png';
+    window.pImages[var_time] = '<?php echo $http . $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-bleu.png';
   }
   else if (t < 12) {
-    window.pImages[var_time] = 'http://<?php echo $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-jaune.png';
+    window.pImages[var_time] = '<?php echo $http . $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-jaune.png';
   }
   else if (t < 18) {
-    window.pImages[var_time] = 'http://<?php echo $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-rouge.png';
+    window.pImages[var_time] = '<?php echo $http . $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-rouge.png';
   }
   else {
-    window.pImages[var_time] = 'http://<?php echo $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-vert.png';
+    window.pImages[var_time] = '<?php echo $http . $_SERVER["HTTP_HOST"]?>/onair/podcast/player/images/fond-vert.png';
   }
   set_image(window.pImages[var_time]);
 
@@ -762,22 +768,23 @@ function set_image(url) {
 
 function add_image(var_title, var_time, var_year, var_month, var_day, force) {
 
-		if (window.pImages[var_time] != undefined && !force)
+
+		if (window.pImages[var_time] != undefined && !force) {
 		  set_image(window.pImages[var_time]);
+		  }
 		else
 		  $.ajax({
 			type: "GET",
 			async: false,
 			timeout: 5000,
-			url: "http://" + window.location.hostname + "/ws/?req=image&t=" + encodeURIComponent(var_title) + "&h=" + var_time + "&y=" + var_year + "&m=" + var_month + "&d=" + var_day,
+			url: "<?php echo $http ; ?>" + window.location.hostname + "/ws/?req=image&t=" + encodeURIComponent(var_title) + "&h=" + var_time + "&y=" + var_year + "&m=" + var_month + "&d=" + var_day,
 			success:function(data)
 			{
-			
 				var span = $("#img-pst");
 				if (span != undefined) {
 				if (data != undefined && data.length != 0 && data[0].uri != null)
 				{
-				  window.pImages[var_time] = 'http://<?php echo $_SERVER["HTTP_HOST"]?>' + data[0].uri;
+				  window.pImages[var_time] = '<?php echo $http . $_SERVER["HTTP_HOST"]?>' + data[0].uri;
  				  set_image(window.pImages[var_time]);
 				}
 				else
@@ -938,7 +945,7 @@ function launch_track(var_mp3, var_title, var_time, var_play, var_url)
 		
 		document.title = var_title + ' - Radio Campus, <?php echo $fulldate;?>, '+var_time+'h';
 		
-		update_reseaux_sociaux('http://<?php echo $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time+complement);
+		update_reseaux_sociaux('<?php echo $http . $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time+complement);
 		add_telecharger(var_time);
 		add_similaire(var_time, var_title);
 		add_image(var_title, var_time, <?php echo $datex[0];?>, <?php echo $datex[1];?>, <?php echo $datex[2]; ?>, false);
@@ -950,7 +957,7 @@ function loop_reload(){
 			type: "GET",
 			async: false,
 			timeout: 5000,
-			url: "http://" + window.location.hostname + "/ws/?req=onair&d=" + new Date().getTime(),
+			url: "<?php echo $http ; ?>" + window.location.hostname + "/ws/?req=onair&d=" + new Date().getTime(),
 			success:function(data)
 			{
 				var span = $("#titre-live");
@@ -1061,7 +1068,7 @@ function play_live(var_start, var_history)
 		window.interval = setInterval('loop_reload();',10000);
   
 		document.title = "Radio Campus live";
-		update_reseaux_sociaux('http://<?php echo $_SERVER["HTTP_HOST"].$prefix_url;?>?live=true');
+		update_reseaux_sociaux('<?php echo $http . $_SERVER["HTTP_HOST"].$prefix_url;?>?live=true');
 		
 }
 
@@ -1105,14 +1112,14 @@ function display_entries(var_time, var_active) {
 		  window.history.pushState({ state: 'list', time: var_time }, 'Radio Campus <?php echo $date;?>'+var_time+'h', '<?php echo $prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
 		  
 		  document.title = 'Programmation musicale - Radio Campus, <?php echo $fulldate;?>, '+var_time+'h';
-		  update_reseaux_sociaux('http://<?php echo $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
+		  update_reseaux_sociaux('<?php echo $http . $_SERVER["HTTP_HOST"].$prefix_url;?>?date=<?php echo $date;?>&time='+var_time);
 }
 
 function open_embed() {
 
 
 		var titres = document.getElementById("codeEmbed");
-		url = "http://www.campus-clermont.net/onair/podcast/player/embed.php?";
+		url = "<?php echo $http ; ?>www.campus-clermont.net/onair/podcast/player/embed.php?";
 		if (window.live) {
 			url += "live=true";
 			titres.innerHTML = "&lt;iframe src=\"" + url + "\" width=\"530px\" height=\"230px\" style=\"border: 1px solid #ccc;\"&gt;&lt;/iframe&gt;";
@@ -1283,7 +1290,7 @@ function rechercher(var_add) {
 
 
 	    var m2Txt = [ "janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre" ];
-	    var url = "http://" + window.location.hostname + "/onair/podcast/player/ws/search.php?q=" + var_search;
+	    var url = "<?php echo $http ;?>" + window.location.hostname + "/onair/podcast/player/ws/search.php?q=" + var_search;
 
 $.ajax({
 			type: "GET",
@@ -1419,7 +1426,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 <div id="main"><div id="fixed-size">
                         <!--<a href="http://www.campus-clermont.net/"><img src="image_aleatoire.php" alt="Radio Campus" /><br /></a>-->
                         
-                        <a href="http://www.campus-clermont.net/" class="logo-campus"><img src="images/logo20ans.png " alt="Radio Campus"/></a>
+                        <a href="<?php echo $http ; ?>www.campus-clermont.net/" class="logo-campus"><img src="images/logo20ans.png " alt="Radio Campus"/></a>
 
 
 
@@ -1543,7 +1550,7 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 			      <?php
 				foreach($podcasts as $podcast) {
 					  if ($podcast->ok && $podcast->mp3 != "") { ?>
-					    <li><a style="margin-right: 10px" title="Tous les podcasts de l'émission <?php echo str_replace("\"", "&quot;", $podcast->title); ?>" href="http://<?php echo $_SERVER['HTTP_HOST'];?>/onair/podcast/player/rss/?q=<?php echo rawurlencode($podcast->title); ?>" target="_blank"><img src="images/rss-small.png" alt="flux rss"/></a> podcasts de l'émission <?php echo $podcast->title;?></li>
+					    <li><a style="margin-right: 10px" title="Tous les podcasts de l'émission <?php echo str_replace("\"", "&quot;", $podcast->title); ?>" href="<?php echo $http . $_SERVER['HTTP_HOST'];?>/onair/podcast/player/rss/?q=<?php echo rawurlencode($podcast->title); ?>" target="_blank"><img src="images/rss-small.png" alt="flux rss"/></a> podcasts de l'émission <?php echo $podcast->title;?></li>
 					  <?php } } ?>
 			    </ul>
 			    </div>
@@ -1706,8 +1713,8 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
   </div>
  </div>
  <div id="pied">
-  <p>Radio Campus Clermont-Ferrand - 16 rue Degeorges 63000 Clermont-Ferrand <br />
-    tél: 04.73.140.158 - fax: 04.73.902.877 - mail: <a href="mailto:antenne@clermont.radiocampus.org">antenne@clermont.radiocampus.org</a><br />
+  <p>Radio Campus Clermont-Ferrand -Pôle 22 bis - Impasse Bonnabaud - 63000 Clermont-Ferrand <br />
+    tél: 04.73.140.158 - mail: <a href="mailto:antenne@clermont.radiocampus.org">antenne@clermont.radiocampus.org</a><br />
     <a href="/mentions-legales.html">mentions légales</a></p>
   <p class="right">Sauf mention contraire, les podcasts proposés en écoute et téléchargement sur cette page sont la propriété de Radio Campus et de l'équipe ayant réalisé l'émission correspondante.<br />
   <a href="/onair/podcast/admin/?date=<?php echo $date; ?>" style="text-decoration: none; color: #888;">administration</a></p>
