@@ -24,11 +24,11 @@ $sans100 = isset($_GET["sans-100"]);
 header("Content-Type: application/rss+xml; charset=utf-8");
 
 $feedkey = $sans100 ? "sans100" : ($emission == "" ? "all" : $emission);
-if ($c->isCached($feedkey)) {
+/*if ($c->isCached($feedkey)) {
 
   echo $c->retrieve($feedkey);
   return;
-}
+}*/
 
   
 $TestFeed = new RSS2;
