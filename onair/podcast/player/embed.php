@@ -1034,10 +1034,10 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 	
 
 			<div id="tools">
-				<div id="reseauxsociaux">
+				<!--div id="reseauxsociaux">
 				<div class="fb-like" data-send="false" data-layout="button_count" data-width="90" data-show-faces="false" data-font="arial"></div>
 				<div id="twitterwrapper"><a href="https://twitter.com/share" class="twitter-share-button">Tweet</a></div>
-				<div id="gpluswrapper"><div class="g-plusone" data-size="medium"></div></div>
+				<div id="gpluswrapper"><div class="g-plusone" data-size="medium"></div></div-->
 			</div>
 			<div id="dl_podcast">
 			</div>
