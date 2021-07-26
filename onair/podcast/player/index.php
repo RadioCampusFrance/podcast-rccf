@@ -116,7 +116,28 @@ class Podcast {
       echo "<p class=\"time_empty\">".$hour."h</p>";
   }
 
-  function toItem($date) {
+  function toItem($date, $i) {
+  
+    echo "<li id=\"time".$i."\"";
+    echo " class=\"";
+    if ($this->duration > 1)
+        echo "large";
+        
+    if ($this->ok && strlen($this->mp3) != 0) {
+        echo ' active"';
+        echo ' onclick="';
+        $this->toLaunchTrack($date, true, true);
+        echo '" ';
+    }
+    if (! $this->ok && count($this->paulo_entries) != 0) {
+        echo ' active"';
+        echo '" onclick="';
+        $this->toDisplayEntries(true);
+        echo '" ';
+    }
+        
+    echo ">";
+
     if ($this->ok) {
       if (strlen($this->mp3) != 0) {
 	echo '<p class="time_elem';
@@ -126,37 +147,37 @@ class Podcast {
       }
       if ($this->duration != 1 || isset($this->$shortTitle))
 	echo " large";
-      if (strlen($this->mp3) != 0) {
-	echo '" onclick="';
-	$this->toLaunchTrack($date, true, true);
-	echo '" ';
-      }
-      else {
-	echo " time_empty\"";
-	if ($this->future && $this->podcastable)
-	  echo ' title="Bientôt en ligne&nbsp;!"';
-      }
-      echo  'onmouseover="document.getElementById(\'title'.$this->time.'\').style.display=\'block\';"  onmouseout="document.getElementById(\'title'.$this->time.'\').style.display=\'none\';">';
-      if (isset($this->shortTitle))
-	echo $this->shortTitle;
-      else {
-	echo $this->time.'h';
-	if ($this->duration != 1)
-	  echo "-".($this->time+$this->duration - 1).'h';
-      }
-      echo '';
-      echo "<div id='title".$this->time."' class=\"time_popup\">".$this->titleItems;
 
-      if (isset($this->ecoutes) && strlen($this->mp3) != 0) {
-	$add = false;
-	$nb = $this->ecoutes[0] + $this->ecoutes[1];
-	if ($nb != 0) {
-	  echo "<br /><span style=\"font-size: 70%; text-align:right\">".$nb . " écoute";
-	  $add = true;
-	  if ($nb > 1)
-	    echo "s";
-	  echo "</span>";
-	}
+	if (strlen($this->mp3) == 0) {
+        echo " time_empty\"";
+        if ($this->future && $this->podcastable)
+        echo ' title="Bientôt en ligne&nbsp;!"';
+    }
+    else
+        echo '"';
+
+    echo  'onmouseover="document.getElementById(\'title'.$this->time.'\').style.display=\'block\';"  onmouseout="document.getElementById(\'title'.$this->time.'\').style.display=\'none\';">';
+    
+    if (isset($this->shortTitle))
+        echo $this->shortTitle;
+    else {
+        echo $this->time.'h';
+        if ($this->duration != 1)
+        echo "-".($this->time+$this->duration - 1).'h';
+        }
+        echo '';
+        echo "<div id='title".$this->time."' class=\"time_popup\">".$this->titleItems;
+
+        if (isset($this->ecoutes) && strlen($this->mp3) != 0) {
+        $add = false;
+        $nb = $this->ecoutes[0] + $this->ecoutes[1];
+        if ($nb != 0) {
+        echo "<br /><span style=\"font-size: 70%; text-align:right\">".$nb . " écoute";
+        $add = true;
+        if ($nb > 1)
+            echo "s";
+        echo "</span>";
+        }
       }
       if (strlen($this->mp3) == 0 && $this->future && $this->podcastable) {
 	 echo "<br /><span style=\"font-size: 70%; text-align:right\">Bientôt en ligne&nbsp;!</span>";
@@ -165,11 +186,12 @@ class Podcast {
     }
     else {
       echo '<p class="';
-      if (count($this->paulo_entries) == 0) {
-	echo 'time_empty';
-	if ($this->duration != 1 || isset($this->$shortTitle))
-	  echo " large";
-	echo '">';
+      
+    if (count($this->paulo_entries) == 0) {
+        echo 'time_empty';
+        if ($this->duration != 1 || isset($this->$shortTitle))
+        echo " large";
+        echo '">';
 	if (isset($this->shortTitle))
 	  echo $this->shortTitle;
 	else {
@@ -182,8 +204,6 @@ class Podcast {
 	echo 'time_titles';
 	if ($this->duration != 1 || isset($this->$shortTitle))
 	  echo " large";
-	echo '" onclick="';
-	$this->toDisplayEntries(true);
 	echo '" onmouseover="document.getElementById(\'title'.$this->time.'\').style.display=\'block\';"  onmouseout="document.getElementById(\'title'.$this->time.'\').style.display=\'none\';" >';
 	if (isset($this->shortTitle))
 	  echo $this->shortTitle;
@@ -196,6 +216,7 @@ class Podcast {
 	echo "<div id='title".$this->time."' class=\"time_popup\">Programmation musicale</div></p>\n";
       }
     }
+    echo "</li>\n";
   }
 
   function toMusicEntries() {
@@ -1643,14 +1664,9 @@ $("#gpluswrapper").html('<div class="g-plusone" data-size="medium"></div>');
 				$notempty = 0;
 				for($i = 0; $i != $limit; $i++) {
 				    if (isset($podcasts[$i])) {
-					echo "<li id=\"time".$i."\"";
-					if ($podcasts[$i]->duration > 1)
-					  echo " class=\"large\"";
-					echo ">";
-					$podcasts[$i]->toItem($date);
-					$first = true;
-					$notempty = $podcasts[$i]->duration - 1;
-					echo "</li>\n";
+                        $podcasts[$i]->toItem($date, $i);
+                        $first = true;
+                        $notempty = $podcasts[$i]->duration - 1;
 				    }
 				    else if ($first && ($notempty == 0)) {
 					echo "<li id=\"time".$i."\">";

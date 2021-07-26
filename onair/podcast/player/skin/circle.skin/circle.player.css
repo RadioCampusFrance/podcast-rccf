@@ -391,6 +391,11 @@ color: #ccc;
 	background: #fff;
 }
 
+#tracklist .active:hover {
+    cursor: pointer;
+}
+
+
 #tracklist .time_popup li {
   border-bottom: 1px solid #eee;
   
@@ -1065,6 +1070,7 @@ font-size: 80%;
         height: 40px;
         width: 40px;
     }
+    
     #tracklist li.large p.time_titles,
     #tracklist li#directlink p {
         width: 73px;
@@ -1167,6 +1173,16 @@ font-size: 80%;
         .popupBox ul {
                 padding: 0;
         }
+        
+        #tracklist .active:hover {
+            background: #1692ae;
+            color: #fff;
+            -webkit-border-radius: 8px;
+            -moz-border-radius: 8px;
+            border-radius: 8px;
+            vertical-align: middle;
+        }
+
 }
 
 
