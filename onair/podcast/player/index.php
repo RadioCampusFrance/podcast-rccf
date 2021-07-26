@@ -444,7 +444,7 @@ $(document).ready(function(){
 	  } }
 		    else {
 		      if (isset($actionLive)) {
-			echo 'mp3: "http://campus.abeille.com:8000/campus",';
+			echo 'mp3: "https://live.radio-campus.org:8002/clermont-ferrand",';
 			//echo 'mp3: "http://imperatorium.org:8000/campus",';
 		      }
 		  }
@@ -1024,7 +1024,7 @@ function play_live(var_start, var_history)
 		myDiv.innerHTML = "<span><span id=\"titre-live\"></span></span>";
 
 		var myDiv = document.getElementById("ecoutes_of_podcast");
-		myDiv.innerHTML = "<span class=\"small\">en cas de problème, <a href=\"http://campus.abeille.com:8000/campus\">ouvrir directement le flux</a></span>";
+		myDiv.innerHTML = "<span class=\"small\">en cas de problème, <a href=\"https://live.radio-campus.org:8002/clermont-ferrand\">ouvrir directement le flux</a></span>";
 		//myDiv.innerHTML = "<span class=\"small\">en cas de problème, <a href=\"http://imperatorium.org:8000/campus\">ouvrir directement le flux</a></span>";
 
     ;
@@ -1043,14 +1043,14 @@ function play_live(var_start, var_history)
 		if (var_start) {
                     $("#jquery_jplayer_1").jPlayer("setMedia", { 
                             title: "Radio Campus live",
-                            mp3: "http://campus.abeille.com:8000/campus",
+                            mp3: "https://live.radio-campus.org:8002/clermont-ferrand",
                             //mp3: "http://imperatorium.org:8000/campus",
                     }).jPlayer("play");
 		}
 		else {
                     $("#jquery_jplayer_1").jPlayer("setMedia", { 
                             title: "Radio Campus live",
-                            mp3: "http://campus.abeille.com:8000/campus",
+                            mp3: "https://live.radio-campus.org:8002/clermont-ferrand",
                             //mp3: "http://imperatorium.org:8000/campus",
                     });
 		}
