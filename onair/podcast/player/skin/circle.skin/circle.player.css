@@ -1174,7 +1174,7 @@ font-size: 80%;
                 padding: 0;
         }
         
-        #tracklist .active:hover {
+        #tracklist .active:active {
             background: #1692ae;
             color: #fff;
             -webkit-border-radius: 8px;
