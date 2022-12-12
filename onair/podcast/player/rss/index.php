@@ -19,6 +19,8 @@ $c->eraseExpired();
 $emission = $_GET["q"];
 if (!isset($emission))
   $emission = "";
+$emission = str_replace("_", " ", $emission);
+
 $sans100 = isset($_GET["sans-100"]);
   
 header("Content-Type: application/rss+xml; charset=utf-8");
