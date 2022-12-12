@@ -29,7 +29,7 @@ try
 	
 }catch(Exception $e)
 {
-	// En cas d'erreur précédemment, on affiche un message et on arrête tout	
+	// En cas d'erreur prÃ©cÃ©demment, on affiche un message et on arrÃªte tout	
 	die('Erreur : '.$e->getMessage());
 }
 
@@ -56,10 +56,10 @@ function get_json($date) {
   }
 
 function simplify_strings($string) {
-	//Normalisation de la chaine utf8 en mode caractère + accents
+	//Normalisation de la chaine utf8 en mode caractÃ¨re + accents
 	$string = Normalizer::normalize($string, Normalizer::FORM_D);
 	//Suppression des accents et minuscules
-        return strtolower(preg_replace('~\p{Mn}~u', '', $string));
+        return strtolower(str_replace('\'', " ", preg_replace('~\p{Mn}~u', '', $string)));
 }
 
 
@@ -184,7 +184,7 @@ function findSimilaires($emissions, $date) {
       }
 
       if ($first) {
-	// même jour: on garde uniquement les heures avant
+	// mÃªme jour: on garde uniquement les heures avant
 	$eDay = filterByHour($eDay, $date, $dir == "1");
       }
       
@@ -205,7 +205,7 @@ function findSimilaires($emissions, $date) {
 	$result["podcast"][$dir][0]->setTime($entry[0], 0);
       }
       
-      // on retire les émissions qui ne matchent pas
+      // on retire les Ã©missions qui ne matchent pas
       $eDay = filterByEmissions($eDay, $emissions);
       if (!isset($eDay) || count($eDay->track) == 0) {
 	$first = false;
@@ -216,7 +216,7 @@ function findSimilaires($emissions, $date) {
 	continue;
 	}
       
-      // finalement, on met à jour si nécessaire
+      // finalement, on met Ã  jour si nÃ©cessaire
       foreach($eDay->track as $e) {
 	if (!isset($result[$e->title][$dir])) {
 	  $result[$e->title][$dir] = clone($curDate);
@@ -285,7 +285,7 @@ function searchSimilaire() {
   $emissions = findSimilaires($emissions, $date);
 
   // post-process
-  // garder une seule émission pour chaque émission similaire
+  // garder une seule Ã©mission pour chaque Ã©mission similaire
   foreach($emissions as $key => $emission) {
     if ($key != $q && $key != "podcast") 
       if (count($emission) > 0){
