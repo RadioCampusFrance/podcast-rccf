@@ -58,8 +58,8 @@ function get_json($date) {
 function simplify_strings($string) {
 	//Normalisation de la chaine utf8 en mode caractère + accents
 	$string = Normalizer::normalize($string, Normalizer::FORM_D);
-	//Suppression des accents et minuscules
-        return strtolower(str_replace('\'', " ", preg_replace('~\p{Mn}~u', '', $string)));
+	//Suppression des accents et minuscules, les caractères chelou et les espaces en double
+	return preg_replace('!\s+!', ' ', strtolower(str_replace(array('\'', ','), " ", preg_replace('~\p{Mn}~u', '', $string))));
 }
 
 
